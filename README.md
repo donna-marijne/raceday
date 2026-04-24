@@ -5,10 +5,10 @@ A terminal tool for replaying Formula 1 races!
 ## Implementation plan
 
 - [ ] Data analysis:
-    - [ ] Load lap times from JSON provided at the command line (acquired from openf1.org)
-    - [ ] List the sector completion events in order of occurrence in the race, e.g. "Car 44 completes lap 5 sector 2 at ..."
+    - [x] Load lap times from JSON provided at the command line (acquired from openf1.org)
+    - [x] List the sector completion events in order of occurrence in the race, e.g. "Car 44 completes lap 5 sector 2 at ..."
     - [ ] Loop the sector completion events and sleep the proper time between printing them (using 60x time compression)
-    - [ ] Add the calculated car position at each event
+    - [x] Add the calculated car position at each event
 - [ ] Animation (curses):
     - [ ] Render a horizontal view with one line per car and (initially) one column per sector (up to 240 columns)
     - [ ] At each sector completion event, move the car to the next column
