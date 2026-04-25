@@ -24,7 +24,6 @@ def timing_events_from_json(laps_json_str):
 
     timing_events = []
     cars = {}
-    positions_by_sector = {}
     for lap in laps:
         date_start = lap["date_start"]
         duration_sector_1 = lap["duration_sector_1"]
@@ -48,20 +47,25 @@ def timing_events_from_json(laps_json_str):
 
             sector = Sector(lap_number, i + 1)
 
-            if sector not in positions_by_sector:
-                positions_by_sector[sector] = []
-            positions_by_sector[sector].append(car)
-            car_position = len(positions_by_sector[sector])
-
             sector = TimingEvent(
                 timestamp=sector_end,
                 sector=sector,
                 car=car,
-                car_position=car_position,
+                car_position=-1,
             )
 
             timing_events.append(sector)
 
             last_end = sector_end
 
-    return sorted(timing_events, key=lambda t: t.timestamp)
+    timing_events = sorted(timing_events, key=lambda t: t.timestamp)
+
+    positions_by_sector = {}
+    for timing_event in timing_events:
+        sector = timing_event.sector
+        if sector not in positions_by_sector:
+            positions_by_sector[sector] = []
+        positions_by_sector[sector].append(timing_event.car)
+        timing_event.car_position = len(positions_by_sector[sector])
+
+    return timing_events

@@ -5,7 +5,7 @@ from car import Car
 from sector import Sector
 
 
-@dataclass(frozen=True)
+@dataclass
 class TimingEvent:
     """Represents the time that a car completes a sector in a race."""
 
