@@ -1,5 +1,6 @@
 import argparse
 
+from event_loop import event_loop
 from openf1.timing_events import timing_events_from_source_dir
 
 
@@ -23,12 +24,15 @@ def main():
     else:
         print("online mode!")
 
-    for timing_event in timing_events:
-        print(
-            f"Car {timing_event.car.number} completes lap {timing_event.sector.lap} sector {timing_event.sector.sector} in P{timing_event.car_position} at {timing_event.timestamp}"
-        )
+    event_loop(timing_events, callback=print_timing_event, time_warp=10)
 
     print("That's the chequered flag for this program!")
+
+
+def print_timing_event(timing_event):
+    print(
+        f"Car {timing_event.car.number} completes lap {timing_event.sector.lap} sector {timing_event.sector.sector} in P{timing_event.car_position} at {timing_event.timestamp}"
+    )
 
 
 if __name__ == "__main__":

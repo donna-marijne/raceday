@@ -1,6 +1,4 @@
-import os
 import unittest
-from datetime import datetime
 from pathlib import Path
 
 from openf1.timing_events import timing_events_from_json
