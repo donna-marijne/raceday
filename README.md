@@ -22,3 +22,9 @@ A terminal tool for replaying Formula 1 races!
     - [ ] Increase the horizontal scale to 3 laps, scrolling with one sector ahead of the leader
     - [ ] Pivot to fixed FPS to support intermediate columns based on sector time? Bucketing? Use the interval data?
     - [ ] Ascii art cars!
+- [ ] Interaction:
+    - [ ] Quit
+    - [ ] Restart
+    - [ ] Pause
+    - [ ] Change warp factor
+    - [ ] Focus a driver and see extra details
