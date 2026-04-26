@@ -1,21 +1,41 @@
 import argparse
+import curses
 
+from curses_renderer import CursesRenderer
 from event_loop import event_loop
 from openf1.timing_events import timing_events_from_source_dir
 
 
-def main():
-    print("Hello from raceday!")
-
+def curses_main(stdscr):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-d",
         "--source-dir",
         help="run offline using OpenF1 JSON files in the specified directory",
     )
+    parser.add_argument(
+        "-w",
+        "--time-warp",
+        type=int,
+        default=10,
+        help="time multiplier to use when replaying",
+    )
 
     args = parser.parse_args()
 
+    timing_events = init_timing_events(args)
+
+    renderer = CursesRenderer(stdscr)
+    renderer.render_ui()
+
+    event_loop(
+        timing_events,
+        callback=renderer.render_timing_event,
+        time_warp=args.time_warp,
+    )
+
+
+def init_timing_events(args):
     timing_events = []
     if args.source_dir:
         print("offline mode!")
@@ -24,16 +44,8 @@ def main():
     else:
         print("online mode!")
 
-    event_loop(timing_events, callback=print_timing_event, time_warp=10)
-
-    print("That's the chequered flag for this program!")
-
-
-def print_timing_event(timing_event):
-    print(
-        f"Car {timing_event.car.number} completes lap {timing_event.sector.lap} sector {timing_event.sector.sector} in P{timing_event.car_position} at {timing_event.timestamp}"
-    )
+    return timing_events
 
 
 if __name__ == "__main__":
-    main()
+    curses.wrapper(curses_main)
