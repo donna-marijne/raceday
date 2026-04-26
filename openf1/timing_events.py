@@ -1,29 +1,13 @@
-import json
 from datetime import datetime, timedelta
-from os import path
 
-from car import Car
 from sector import Sector
 from timing_event import TimingEvent
 
 
-def timing_events_from_source_dir(dir_path):
-    laps_file_path = path.join(dir_path, "laps.json")
-
-    laps_json_str = None
-    with open(laps_file_path, "r") as laps_file:
-        laps_json_str = laps_file.read()
-
-    return timing_events_from_json(laps_json_str)
-
-
-def timing_events_from_json(laps_json_str):
+def timing_events_from_api_laps(laps, cars):
     """Returns a list of TimingEvents ordered by timestamp"""
 
-    laps = json.loads(laps_json_str)
-
     timing_events = []
-    cars = {}
     for lap in laps:
         date_start = lap["date_start"]
         duration_sector_1 = lap["duration_sector_1"]
@@ -32,8 +16,6 @@ def timing_events_from_json(laps_json_str):
         driver_number = lap["driver_number"]
         lap_number = lap["lap_number"]
 
-        if driver_number not in cars:
-            cars[driver_number] = Car(number=driver_number)
         car = cars[driver_number]
 
         last_end = datetime.fromisoformat(date_start)

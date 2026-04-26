@@ -2,8 +2,9 @@ import curses
 
 
 class CursesRenderer:
-    def __init__(self, window):
+    def __init__(self, window, session):
         self.window = window
+        self.session = session
 
         # enable color with default palette
         curses.start_color()
@@ -27,7 +28,7 @@ class CursesRenderer:
         self.window.addstr(
             y + 2,
             3,
-            " Heinz Baked Beans Grand Prix of Northern Ireland ",
+            " " + self.session.name + " ",
             curses.A_REVERSE,
         )
         self.window.addstr(y + 4, 1, "HAM", curses.color_pair(9))
@@ -35,7 +36,7 @@ class CursesRenderer:
         self.window.refresh()
 
     def render_timing_event(self, timing_event):
-        str = f"Car {timing_event.car.number} completes lap {timing_event.sector.lap} sector {timing_event.sector.sector} in P{timing_event.car_position}"
+        str = f"Car {timing_event.car.number} ({timing_event.car.driver_acronym}) completes lap {timing_event.sector.lap} sector {timing_event.sector.sector} in P{timing_event.car_position}"
 
         self.window.move(self.msg_y, 1)
         self.window.clrtoeol()

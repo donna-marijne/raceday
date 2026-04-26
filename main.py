@@ -1,9 +1,11 @@
 import argparse
 import curses
+import os
+from pathlib import Path
 
 from curses_renderer import CursesRenderer
 from event_loop import event_loop
-from openf1.timing_events import timing_events_from_source_dir
+from openf1.session import session_from_source_dir
 
 
 def curses_main(stdscr):
@@ -23,28 +25,27 @@ def curses_main(stdscr):
 
     args = parser.parse_args()
 
-    timing_events = init_timing_events(args)
+    session = init_session(args)
 
-    renderer = CursesRenderer(stdscr)
+    renderer = CursesRenderer(stdscr, session)
     renderer.render_ui()
 
     event_loop(
-        timing_events,
+        session.timing_events,
         callback=renderer.render_timing_event,
         time_warp=args.time_warp,
     )
 
 
-def init_timing_events(args):
-    timing_events = []
+def init_session(args):
+    source_dir = Path(args.source_dir)
+    session = None
     if args.source_dir:
-        print("offline mode!")
-        print(args.source_dir)
-        timing_events = timing_events_from_source_dir(args.source_dir)
+        session = session_from_source_dir(source_dir)
     else:
         print("online mode!")
 
-    return timing_events
+    return session
 
 
 if __name__ == "__main__":
