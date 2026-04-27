@@ -9,7 +9,7 @@ from sector import Sector
 
 class TestTimingEventsFromJson(unittest.TestCase):
     def setUp(self):
-        self.test_data_dir_path = Path(__file__).parent / "data"
+        self.test_data_dir_path = Path(__file__).parent / "data" / "laps"
         self.cars = {
             11: Car(
                 number=11,
