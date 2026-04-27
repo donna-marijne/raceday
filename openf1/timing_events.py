@@ -18,6 +18,10 @@ def timing_events_from_api_laps(laps, cars):
 
         car = cars[driver_number]
 
+        if date_start is None:
+            # DNS(?)
+            continue
+
         last_end = datetime.fromisoformat(date_start)
         for i, duration in enumerate(
             [duration_sector_1, duration_sector_2, duration_sector_3]
