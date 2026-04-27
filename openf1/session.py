@@ -1,61 +1,33 @@
-import json
-
 from car import Car
+from openf1.openf1_payload import OpenF1Payload
 from openf1.timing_events import timing_events_from_api_laps
 from session import Session
 
 
 def session_from_source_dir(dir_path):
-    sessions = None
-    with (dir_path / "sessions.json").open("r") as sessions_file:
-        json_str = sessions_file.read()
-        sessions = json.loads(json_str)
-    drivers = None
-    with (dir_path / "drivers.json").open("r") as drivers_file:
-        json_str = drivers_file.read()
-        drivers = json.loads(json_str)
-    starting_grid = None
-    with (dir_path / "starting_grid.json").open("r") as starting_grid_file:
-        json_str = starting_grid_file.read()
-        starting_grid = json.loads(json_str)
-    laps = None
-    with (dir_path / "laps.json").open("r") as laps_file:
-        json_str = laps_file.read()
-        laps = json.loads(json_str)
-
-    return session_from_json(
-        sessions=sessions,
-        drivers=drivers,
-        starting_grid=starting_grid,
-        laps=laps,
-    )
+    return _session_from_api(OpenF1Payload.from_source_dir(dir_path))
 
 
-def session_from_json(sessions, drivers, starting_grid, laps):
-    if len(sessions) != 1:
-        raise ValueError(f"unexpectedly saw {len(sessions)} sessions")
+def _session_from_api(payload):
+    if len(payload.drivers) == 0:
+        raise ValueError(f"unexpectedly saw {len(payload.drivers)} drivers")
 
-    session = sessions[0]
+    if len(payload.starting_grid) == 0:
+        raise ValueError(f"unexpectedly saw {len(payload.starting_grid)} starting_grid")
 
-    if len(drivers) == 0:
-        raise ValueError(f"unexpectedly saw {len(drivers)} drivers")
+    if len(payload.laps) == 0:
+        raise ValueError(f"unexpectedly saw {len(payload.laps)} laps")
 
-    if len(starting_grid) == 0:
-        raise ValueError(f"unexpectedly saw {len(starting_grid)} starting_grid")
-
-    if len(laps) == 0:
-        raise ValueError(f"unexpectedly saw {len(laps)} laps")
-
-    cars = _cars_from_api(drivers)
-    grid = _starting_grid_from_api(starting_grid, cars)
-    timing_events = timing_events_from_api_laps(laps, cars)
+    cars = _cars_from_api(payload.drivers)
+    starting_grid = _starting_grid_from_api(payload.starting_grid, cars)
+    timing_events = timing_events_from_api_laps(payload.laps, cars)
     total_laps = _total_laps(timing_events)
 
     return Session(
-        name=f"{session['year']} {session['country_name']}",
+        name=f"{payload.meeting['year']} {payload.meeting['meeting_name']}",
         total_laps=total_laps,
         cars=cars,
-        starting_grid=grid,
+        starting_grid=starting_grid,
         timing_events=timing_events,
     )
 
