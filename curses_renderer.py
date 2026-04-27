@@ -1,6 +1,8 @@
 import curses
 
+from car import Car
 from curses_color import curses_color_from_hex_string
+from sector import Sector
 from session import Session
 from timing_event import TimingEvent
 
@@ -9,6 +11,7 @@ class CursesRenderer:
     def __init__(self, window: curses.window, session: Session):
         self.window = window
         self.session = session
+        self.current_row_by_car = {}
 
         # enable color with default palette
         curses.start_color()
@@ -43,29 +46,58 @@ class CursesRenderer:
         self.window.hline(curses.ACS_HLINE, self.session.total_laps * 3)
 
         # y axis (car labels)
-        self.first_driver_label_yx = self._move(dy=1, x=1)
-        self.first_car_origin = self.first_driver_label_yx[0], self.lap_offset_x
-        for car in self.session.starting_grid:
+        first_car_y, _ = self._move(dy=1, x=1)
+        self.first_car_row_y = first_car_y
+        for row, car in enumerate(self.session.starting_grid):
             if car is None:
                 continue
 
-            color_number = (
-                self.color_map[car.color] if car.color in self.color_map else 0
-            )
-            self.window.addstr(car.driver_acronym, curses.color_pair(color_number))
-            self._move(dy=1, x=1)
+            self.current_row_by_car[car.number] = row
 
-        self.msg_yx = self._move(dy=1, x=1)
+            self._insert_car_row(first_car_y + 0, car)
 
         self.window.refresh()
 
     def render_timing_event(self, timing_event: TimingEvent):
-        str = f"Car {timing_event.car.number} ({timing_event.car.driver_acronym}) completes lap {timing_event.sector.lap} sector {timing_event.sector.sector} in P{timing_event.car_position}"
+        car = timing_event.car
 
-        self.window.move(*self.msg_yx)
-        self.window.clrtoeol()
-        self.window.addstr(str, curses.color_pair(11))
+        # delete the old row with the car
+        assert car.number in self.current_row_by_car
+        old_row = self.current_row_by_car[car.number]
+        old_y = self.first_car_row_y + old_row
+        self._move(y=old_y, x=0)
+        self.window.deleteln()
+        for car_number, row in self.current_row_by_car.items():
+            if row > old_row:
+                self.current_row_by_car[car_number] -= 1
+
+        new_row = timing_event.car_position - 1
+        new_y = self.first_car_row_y + new_row
+        self._insert_car_row(new_y, car, timing_event.sector)
+        for car_number, row in self.current_row_by_car.items():
+            if row >= new_row:
+                self.current_row_by_car[car_number] += 1
+        self.current_row_by_car[car.number] = new_row
+
         self.window.refresh()
+
+    def _insert_car_row(self, y: int, car: Car, sector: Sector | None = None):
+        self._move(y=y, x=0)
+        self.window.insertln()
+
+        self._move(y=y, x=1)
+        self.window.addstr(car.driver_acronym, self._color_pair_for_car(car))
+
+        x = ((sector.lap - 1) * 3 + sector.sector) if sector else 0
+        self._move(x=self.lap_offset_x + x)
+        self._render_car(car)
+
+    def _color_pair_for_car(self, car: Car) -> int:
+        color_number = self.color_map[car.color] if car.color in self.color_map else 0
+        return curses.color_pair(color_number)
+
+    def _render_car(self, car: Car):
+        self.window.addch(" ", self._color_pair_for_car(car) | curses.A_REVERSE)
 
     def _move(self, y=None, x=None, dy=None, dx=None):
         next_y, next_x = self.window.getyx()
