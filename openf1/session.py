@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from car import Car
 from openf1.openf1_payload import OpenF1Payload
 from openf1.timing_events import timing_events_from_api_laps
@@ -25,6 +27,7 @@ def _session_from_api(payload):
 
     return Session(
         name=f"{payload.meeting['year']} {payload.meeting['meeting_name']}",
+        start=datetime.fromisoformat(payload.session["date_start"]),
         total_laps=total_laps,
         cars=cars,
         starting_grid=starting_grid,

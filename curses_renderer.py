@@ -35,6 +35,10 @@ class CursesRenderer:
         # session name
         self._move(dy=2, x=3)
         self.window.addstr(" " + self.session.name + " ", curses.A_REVERSE)
+        self.window.addstr(
+            " " + self.session.start.strftime("%-d %B") + " ",
+            curses.color_pair(3) | curses.A_REVERSE,
+        )
 
         # x axis (lap numbers)
         self.lap_offset_x = 6
