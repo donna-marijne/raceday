@@ -1,7 +1,9 @@
 import curses
+from datetime import datetime
 
 from car import Car
 from curses_color import curses_color_from_hex_string
+from format_timedelta import format_timedelta
 from sector import Sector
 from session import Session
 from timing_event import TimingEvent
@@ -33,7 +35,7 @@ class CursesRenderer:
             self.window.addstr(" ")
 
         # session name
-        self._move(dy=2, x=3)
+        self.header_y, _ = self._move(dy=2, x=3)
         self.window.addstr(" " + self.session.name + " ", curses.A_REVERSE)
         self.window.addstr(
             " " + self.session.start.strftime("%-d %B") + " ",
@@ -82,6 +84,16 @@ class CursesRenderer:
             if row >= new_row:
                 self.current_row_by_car[car_number] += 1
         self.current_row_by_car[car.number] = new_row
+
+        self.window.refresh()
+
+    def render_clock(self, timestamp: datetime, start_time: datetime):
+        race_time = timestamp - start_time
+        str = f" {format_timedelta(race_time)} "
+        _, max_x = self.window.getmaxyx()
+        x = max_x - len(str) - 1
+        self._move(self.header_y, x)
+        self.window.addstr(str, curses.A_REVERSE)
 
         self.window.refresh()
 

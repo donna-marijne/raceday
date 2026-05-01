@@ -31,8 +31,9 @@ def curses_main(stdscr):
     renderer.render_ui()
 
     event_loop(
-        session.timing_events,
-        callback=renderer.render_timing_event,
+        session,
+        event_callback=renderer.render_timing_event,
+        time_callback=renderer.render_clock,
         time_warp=args.time_warp,
     )
 
