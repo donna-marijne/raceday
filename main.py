@@ -44,6 +44,7 @@ def init_session(args):
         session = session_from_source_dir(source_dir)
     else:
         print("online mode!")
+        raise NotImplementedError("online mode tbd")
 
     return session
 
