@@ -8,3 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# App generated files
+/*.log
+/timing_events.json

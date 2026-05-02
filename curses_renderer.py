@@ -1,6 +1,7 @@
 import curses
 from datetime import datetime
 
+import log
 from car import Car
 from curses_color import curses_color_from_hex_string
 from format_timedelta import format_timedelta
@@ -60,11 +61,13 @@ class CursesRenderer:
 
             self.current_row_by_car[car.number] = row
 
-            self._insert_car_row(first_car_y + 0, car)
+            self._insert_car_row(first_car_y + row, car)
 
         self.window.refresh()
 
     def render_timing_event(self, timing_event: TimingEvent):
+        log.debug(f"render_timing_event: {timing_event}")
+
         car = timing_event.car
 
         # delete the old row with the car
@@ -105,8 +108,12 @@ class CursesRenderer:
         self.window.addstr(car.driver_acronym, self._color_pair_for_car(car))
 
         x = ((sector.lap - 1) * 3 + sector.sector) if sector else 0
-        self._move(x=self.lap_offset_x + x)
+        car_pos = self._move(y=y, x=self.lap_offset_x + x)
         self._render_car(car)
+
+        log.debug(
+            f"_insert_car_row: rendered car {car} in sector {sector} at {car_pos}"
+        )
 
     def _color_pair_for_car(self, car: Car) -> int:
         color_number = self.color_map[car.color] if car.color in self.color_map else 0
@@ -126,7 +133,10 @@ class CursesRenderer:
         if dx is not None:
             next_x += dx
 
-        self.window.move(next_y, next_x)
+        try:
+            self.window.move(next_y, next_x)
+        except:
+            raise ValueError(f"failed to move to y={next_y}, x={next_x}")
 
         return next_y, next_x
 

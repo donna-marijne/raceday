@@ -7,11 +7,11 @@ JSON: TypeAlias = dict[str, "JSON"] | list["JSON"] | str | int | float | bool | 
 
 @dataclass
 class OpenF1Payload:
-    session: JSON
-    meeting: JSON
-    drivers: list[JSON]
-    starting_grid: list[JSON]
-    laps: list[JSON]
+    session: dict[str, JSON]
+    meeting: dict[str, JSON]
+    drivers: list[dict[str, JSON]]
+    starting_grid: list[dict[str, JSON]]
+    laps: list[dict[str, JSON]]
 
     @classmethod
     def from_source_dir(cls, dir_path):

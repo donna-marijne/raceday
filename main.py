@@ -1,11 +1,15 @@
 import argparse
 import curses
-import os
+import json
+from dataclasses import asdict
 from pathlib import Path
 
+import log
 from curses_renderer import CursesRenderer
+from datetime_json_encoder import DateTimeJSONEncoder
 from event_loop import event_loop
 from openf1.session import session_from_source_dir
+from session import Session
 
 
 def curses_main(stdscr):
@@ -26,6 +30,7 @@ def curses_main(stdscr):
     args = parser.parse_args()
 
     session = init_session(args)
+    debug_session(session)
 
     renderer = CursesRenderer(stdscr, session)
     renderer.render_ui()
@@ -48,6 +53,14 @@ def init_session(args):
         raise NotImplementedError("online mode tbd")
 
     return session
+
+
+def debug_session(session: Session):
+    timing_events_json = json.dumps(
+        [asdict(te) for te in session.timing_events], cls=DateTimeJSONEncoder
+    )
+    with open("timing_events.json", "w") as file:
+        file.write(timing_events_json)
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ def event_loop(
 ):
     interval = 1 / frequency
     queue = list(session.timing_events)
-    start_time = queue[0].timestamp
+    start_time = session.start
     sim_time = start_time
     wall_time = datetime.now()
     while len(queue) > 0:
@@ -22,4 +22,5 @@ def event_loop(
             wall_time = now
             time_callback(sim_time, start_time=start_time)
 
+        assert event.timestamp <= sim_time
         event_callback(event)
