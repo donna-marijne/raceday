@@ -4,15 +4,15 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-import log
 from curses_renderer import CursesRenderer
 from datetime_json_encoder import DateTimeJSONEncoder
 from event_loop import event_loop
+from handle_input import handle_input
 from openf1.session import session_from_source_dir
 from session import Session
 
 
-def curses_main(stdscr):
+def curses_main(stdscr: curses.window):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-d",
@@ -35,12 +35,18 @@ def curses_main(stdscr):
     renderer = CursesRenderer(stdscr, session)
     renderer.render_ui()
 
+    input_handler = lambda: handle_input(stdscr)
+
     event_loop(
         session,
+        input_callback=input_handler,
         event_callback=renderer.render_timing_event,
         time_callback=renderer.render_clock,
         time_warp=args.time_warp,
     )
+
+    stdscr.nodelay(False)
+    input_handler()
 
 
 def init_session(args):

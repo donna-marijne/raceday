@@ -30,7 +30,7 @@ A terminal tool for replaying Formula 1 races!
     - [ ] Ascii art cars!
 - [ ] Even hi-er res animation: use the 3D locations data and the track shape to calculate car progress on each lap
 - [ ] Interaction:
-    - [ ] Quit
+    - [x] Quit
     - [ ] Restart
     - [ ] Pause
     - [ ] Change warp factor

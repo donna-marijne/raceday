@@ -25,6 +25,9 @@ class CursesRenderer:
         # hide the cursor
         curses.curs_set(0)
 
+        # set non-blocking input mode
+        self.window.nodelay(True)
+
         self._init_colors()
 
     def render_ui(self):
