@@ -5,16 +5,17 @@ import log
 from car import Car
 from curses_color import curses_color_from_hex_string
 from format_timedelta import format_timedelta
-from sector import Sector
+from race_state_from_session import race_state_from_session
 from session import Session
 from timing_event import TimingEvent
+from tui.race_view import RaceView
 
 
 class CursesRenderer:
     def __init__(self, window: curses.window, session: Session):
         self.window = window
         self.session = session
-        self.current_row_by_car = {}
+        # self.current_row_by_car = {}
 
         # enable color with default palette
         curses.start_color()
@@ -30,7 +31,11 @@ class CursesRenderer:
 
         self._init_colors()
 
+        self.race_state = race_state_from_session(session, color_map=self.color_map)
+
     def render_ui(self):
+        _, window_width = self.window.getmaxyx()
+
         self.window.move(0, 0)
 
         # palette sample
@@ -46,52 +51,48 @@ class CursesRenderer:
             curses.color_pair(3) | curses.A_REVERSE,
         )
 
-        # x axis (lap numbers)
-        self.lap_offset_x = 6
-        self._move(dy=2, x=self.lap_offset_x)
-        for i in range(0, self.session.total_laps):
-            self.window.addstr(str(i + 1).ljust(3, " "), curses.A_DIM)
-
-        self._move(dy=1, x=self.lap_offset_x)
-        self.window.hline(curses.ACS_HLINE, self.session.total_laps * 3)
-
-        # y axis (car labels)
-        first_car_y, _ = self._move(dy=1, x=1)
-        self.first_car_row_y = first_car_y
-        for row, car in enumerate(self.session.starting_grid):
-            if car is None:
-                continue
-
-            self.current_row_by_car[car.number] = row
-
-            self._insert_car_row(first_car_y + row, car)
+        # race view component
+        race_view_window = self.window.subwin(
+            len(self.session.starting_grid) + 2,
+            window_width,
+            self.header_y + 2,
+            0,
+        )
+        self.race_view = RaceView(window=race_view_window)
+        self.race_view.update(self.race_state)
 
         self.window.refresh()
 
     def render_timing_event(self, timing_event: TimingEvent):
         log.debug(f"render_timing_event: {timing_event}")
 
+        car_states = self.race_state.cars
         car = timing_event.car
+        car_index = timing_event.car_position - 1
 
-        # delete the old row with the car
-        assert car.number in self.current_row_by_car
-        old_row = self.current_row_by_car[car.number]
-        old_y = self.first_car_row_y + old_row
-        self._move(y=old_y, x=0)
-        self.window.deleteln()
-        for car_number, row in self.current_row_by_car.items():
-            if row > old_row:
-                self.current_row_by_car[car_number] -= 1
+        if car_states[car_index].number != car.number:
+            old_car_index = None
+            for i, cs in enumerate(car_states):
+                if cs.number == car.number:
+                    old_car_index = i
+                    break
+            assert old_car_index is not None
+            car_state = car_states.pop(old_car_index)
+            car_states.insert(car_index, car_state)
 
-        new_row = timing_event.car_position - 1
-        new_y = self.first_car_row_y + new_row
-        self._insert_car_row(new_y, car, timing_event.sector)
-        for car_number, row in self.current_row_by_car.items():
-            if row >= new_row:
-                self.current_row_by_car[car_number] += 1
-        self.current_row_by_car[car.number] = new_row
+        car_state = car_states[car_index]
+        completed_sector = timing_event.sector
+        if completed_sector.sector == 3:
+            car_state.lap = completed_sector.lap + 1
+            car_state.sector = 1
+        else:
+            car_state.lap = completed_sector.lap
+            car_state.sector = completed_sector.sector + 1
 
-        self.window.refresh()
+        self.race_view.update(self.race_state)
+
+        # self.window.refresh()
+        curses.doupdate()
 
     def render_clock(self, timestamp: datetime, start_time: datetime):
         race_time = timestamp - start_time
@@ -102,21 +103,6 @@ class CursesRenderer:
         self.window.addstr(str, curses.A_REVERSE)
 
         self.window.refresh()
-
-    def _insert_car_row(self, y: int, car: Car, sector: Sector | None = None):
-        self._move(y=y, x=0)
-        self.window.insertln()
-
-        self._move(y=y, x=1)
-        self.window.addstr(car.driver_acronym, self._color_pair_for_car(car))
-
-        x = ((sector.lap - 1) * 3 + sector.sector) if sector else 0
-        car_pos = self._move(y=y, x=self.lap_offset_x + x)
-        self._render_car(car)
-
-        log.debug(
-            f"_insert_car_row: rendered car {car} in sector {sector} at {car_pos}"
-        )
 
     def _color_pair_for_car(self, car: Car) -> int:
         color_number = self.color_map[car.color] if car.color in self.color_map else 0

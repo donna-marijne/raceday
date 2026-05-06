@@ -1,11 +1,10 @@
 from datetime import datetime
-from zoneinfo import ZoneInfo
 
-import log
 from car import Car
 from openf1.openf1_payload import OpenF1Payload
 from openf1.timing_events import timing_events_from_api_laps
 from session import Session
+from timing_event import TimingEvent
 
 
 def session_from_source_dir(dir_path):
@@ -27,6 +26,7 @@ def _session_from_api(payload: OpenF1Payload):
     starting_grid = _starting_grid_from_api(payload.starting_grid, cars)
     timing_events = timing_events_from_api_laps(payload.laps, cars)
     total_laps = _total_laps(timing_events)
+    car_timing_events = _car_timing_events(timing_events)
 
     return Session(
         name=f"{payload.meeting['year']} {payload.meeting['meeting_name']}",
@@ -35,6 +35,7 @@ def _session_from_api(payload: OpenF1Payload):
         cars=cars,
         starting_grid=starting_grid,
         timing_events=timing_events,
+        car_driving_events=car_timing_events,
     )
 
 
@@ -96,3 +97,16 @@ def _total_laps(timing_events):
     for timing_event in timing_events:
         total_laps = max(total_laps, timing_event.sector.lap)
     return total_laps
+
+
+def _car_timing_events(
+    timing_events: list[TimingEvent],
+) -> dict[int, list[TimingEvent]]:
+    car_timing_events = {}
+    for timing_event in timing_events:
+        car = timing_event.car.number
+        if car not in car_timing_events:
+            car_timing_events[car] = []
+        car_timing_events[car].append(timing_event)
+
+    return car_timing_events

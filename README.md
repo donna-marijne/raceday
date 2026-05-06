@@ -19,7 +19,7 @@ A terminal tool for replaying Formula 1 races!
     - [ ] Current tyre age
     - [ ] The track name and metadata
     - [x] Use the start grid to show initial correct order
-    - [ ] Current track time
+    - [x] Current track time
     - [ ] Current track weather/temp
     - [ ] Marshal flag indicator
     - [ ] Safety car indicator
