@@ -30,6 +30,8 @@ class RaceView:
     def update(self, state: RaceState):
         self.window.erase()
 
+        log.debug(f"state={state}")
+
         _, window_width = self.window.getmaxyx()
         track_width = window_width - 1 - self.y_axis_width
         sector_width = track_width // (self.show_laps * 3)  # cols per sector
@@ -59,9 +61,6 @@ class RaceView:
             lap = (total_sectors // 3) + 1
             sector = (total_sectors % 3) + 1
 
-            if lap == state.total_laps:
-                break
-
             x = self.y_axis_width + x_col - min_x_col
             try:
                 self.window.move(0, x)
@@ -71,9 +70,17 @@ class RaceView:
                 )
 
             if sector == 1:
-                self.window.addstr(str(lap))
+                # laps start with 1, cars finish after the end
+                if lap <= state.total_laps:
+                    self.window.addstr(str(lap), curses.A_DIM)
+                else:
+                    self.window.addstr("🬗🬗🬐")
+
             else:
-                self.window.addch("|")
+                self.window.addch("|", curses.A_DIM)
+
+            if lap > state.total_laps:
+                break
 
         self.window.hline(1, 0, curses.ACS_HLINE, window_width)
 
