@@ -89,7 +89,7 @@ class RaceView:
             y_row = self.x_axis_height + i
 
             # print the label with 1 col offset
-            self.window.addstr(y_row, 1, car.acronym)
+            self.window.addstr(y_row, 1, car.acronym, curses.color_pair(car.color))
 
             # draw the car
             car_col = col_from_progress(
@@ -99,7 +99,12 @@ class RaceView:
                 progress=car.progress,
             )
             car_x_offset = self.y_axis_width + max(0, car_col - min_x_col)
-            self.window.addch(y_row, car_x_offset, " ", curses.A_REVERSE)
+            self.window.addch(
+                y_row,
+                car_x_offset,
+                " ",
+                curses.color_pair(car.color) | curses.A_REVERSE,
+            )
 
         self.window.noutrefresh()
 
