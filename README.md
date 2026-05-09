@@ -40,4 +40,6 @@ A terminal tool for replaying Formula 1 races!
 
 ## Bugs to fix
 
-- Cars that DNS can leave cars that started behind them in their start state
+- Cars may have `null` as `duration_sector_*` meaning that we calculate the position incorrectly
+  - Case: session 11245, car 43, lap 4; calculated as position 1, expected ~2
+  - Solution: if one sector is missing, use the `lap_duration` to derive it
