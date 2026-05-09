@@ -51,38 +51,44 @@ class RaceView:
         )
 
         # draw the x axis
+        x_axis_labels_y = 0
+        x_axis_y = 1
+
+        self.window.attron(curses.A_DIM)
+
+        self.window.addstr(x_axis_y, 0, "━" * self.y_axis_width)
+
         # loop each column and draw for whole laps/sectors
         for x_col in range(min_x_col, min_x_col + track_width):
             progress = x_col % sector_width
-            if progress != 0:
-                continue
 
             total_sectors = x_col // sector_width
             lap = (total_sectors // 3) + 1
             sector = (total_sectors % 3) + 1
 
             x = self.y_axis_width + x_col - min_x_col
-            try:
-                self.window.move(0, x)
-            except:
-                raise Exception(
-                    f"failed to move to y=1, x={x}; window_width={window_width}"
-                )
 
-            if sector == 1:
+            # labels row
+            self.window.move(x_axis_labels_y, x)
+
+            if progress == 0 and sector == 1:
                 # laps start with 1, cars finish after the end
                 if lap <= state.total_laps:
-                    self.window.addstr(str(lap), curses.A_DIM)
+                    self.window.addstr(str(lap))
                 else:
-                    self.window.addstr("🬗🬗🬐")
+                    self.window.addstr("🬗🬗🬐", curses.A_NORMAL)
 
+            # axis row
+            self.window.move(x_axis_y, x)
+            if progress == 0:
+                self.window.addch("┷")
             else:
-                self.window.addch("|", curses.A_DIM)
+                self.window.addch("━")
 
             if lap > state.total_laps:
                 break
 
-        self.window.hline(1, 0, curses.ACS_HLINE, window_width)
+        self.window.attroff(curses.A_DIM)
 
         # draw the y axis and cars
         for i, car in enumerate(state.cars):
