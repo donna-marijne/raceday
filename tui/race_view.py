@@ -28,7 +28,7 @@ class RaceView:
         self.x_axis_height = 2
 
     def update(self, state: RaceState):
-        self.window.clear()
+        self.window.erase()
 
         _, window_width = self.window.getmaxyx()
         track_width = window_width - 1 - self.y_axis_width
