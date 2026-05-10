@@ -2,6 +2,7 @@ import unittest
 from pathlib import Path
 
 from openf1.session import session_from_source_dir
+from timing_event import TimingEvent
 
 
 class TestOpenF1SessionFromSourceDir(unittest.TestCase):
@@ -25,7 +26,7 @@ class TestOpenF1SessionFromSourceDir(unittest.TestCase):
         self.assertEqual(session.starting_grid[10].number, 1)
         self.assertEqual(session.starting_grid[18].number, 24)
         self.assertEqual(session.starting_grid[19].number, 22)
-        self.assertEqual(len(session.timing_events), 2519)
+        self.assertEqual(len(session.timing_events), 2523)
 
     def test_2025_singapore(self):
         dir_path = self.test_data_dir_path / "9896"
@@ -44,7 +45,7 @@ class TestOpenF1SessionFromSourceDir(unittest.TestCase):
         self.assertEqual(session.starting_grid[17].number, 10)
         self.assertEqual(session.starting_grid[18].number, 55)
         self.assertEqual(session.starting_grid[19].number, 23)
-        self.assertEqual(len(session.timing_events), 3682)
+        self.assertEqual(len(session.timing_events), 3687)
 
     def test_2026_china(self):
         dir_path = self.test_data_dir_path / "11245"
@@ -64,7 +65,8 @@ class TestOpenF1SessionFromSourceDir(unittest.TestCase):
         self.assertEqual(session.starting_grid[17].number, 14)
         self.assertEqual(session.starting_grid[20].number, 11)
         self.assertEqual(session.starting_grid[21].number, 23)
-        self.assertEqual(len(session.timing_events), 2755)
+        self.assertEqual(len(session.timing_events), 2757)
+        self.assertEqual(highest_position(session.timing_events, 43), 2)
 
     def test_2026_china_sprint(self):
         dir_path = self.test_data_dir_path / "11240"
@@ -85,3 +87,14 @@ class TestOpenF1SessionFromSourceDir(unittest.TestCase):
         self.assertEqual(session.starting_grid[20].number, 11)
         self.assertEqual(session.starting_grid[21].number, 23)
         self.assertEqual(len(session.timing_events), 1188)
+
+
+def highest_position(timing_events: list[TimingEvent], car: int) -> int:
+    timing_event = min(
+        (e for e in timing_events if e.car.number == car),
+        key=lambda e: e.car_position,
+        default=None,
+    )
+    if timing_event is None:
+        return -1
+    return timing_event.car_position
