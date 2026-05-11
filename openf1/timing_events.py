@@ -1,14 +1,15 @@
 from datetime import datetime, timedelta
 
 import log
+from car import Car
 from sector import Sector
 from timing_event import TimingEvent
 
 
-def timing_events_from_api_laps(laps, cars):
+def timing_events_from_api_laps(laps, cars: dict[int, Car]):
     """Returns a list of TimingEvents ordered by timestamp"""
 
-    timing_events = []
+    timing_events: list[TimingEvent] = []
     for lap in laps:
         date_start = lap["date_start"]
         duration_sector_1 = lap["duration_sector_1"]
@@ -40,6 +41,7 @@ def timing_events_from_api_laps(laps, cars):
             sector = TimingEvent(
                 timestamp=sector_end,
                 sector=sector,
+                sector_duration=None,
                 car=car,
                 car_position=-1,
             )
@@ -50,13 +52,23 @@ def timing_events_from_api_laps(laps, cars):
 
     timing_events = sorted(timing_events, key=lambda t: t.timestamp)
 
+    # calculate positions and sector durations
     positions_by_sector = {}
+    prev_event_by_car: dict[int, TimingEvent] = {}
     for timing_event in timing_events:
+        # calculate car position in this sector
         sector = timing_event.sector
         if sector not in positions_by_sector:
             positions_by_sector[sector] = []
         positions_by_sector[sector].append(timing_event.car)
         timing_event.car_position = len(positions_by_sector[sector])
+
+        # calculate sector durations
+        car_number = timing_event.car.number
+        if car_number in prev_event_by_car:
+            prev_event = prev_event_by_car[car_number]
+            prev_event.sector_duration = timing_event.timestamp - prev_event.timestamp
+        prev_event_by_car[car_number] = timing_event
 
     return timing_events
 

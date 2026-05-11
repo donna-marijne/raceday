@@ -24,8 +24,10 @@ A terminal tool for replaying Formula 1 races!
     - [ ] Marshal flag indicator
     - [ ] Safety car indicator
 - [ ] Hi res animation:
-    - [ ] Increase the horizontal scale to 3 laps, scrolling with one sector ahead of the leader
-    - [ ] Interpolate position based on sector time
+    - [x] Increase the horizontal scale to 3 laps, scrolling with one sector ahead of the leader
+    - [x] Interpolate position based on sector time
+    - [ ] Scale sector length to relative duration (use pole quali lap times?)
+    - [ ] Reorder cars within a sector (can sort by lap/sector/progress now)
     - [ ] Show a pit indicator for cars going through the pit lane
     - [x] Ascii art cars!
       - ⊵o≗o⌳

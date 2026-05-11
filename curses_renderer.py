@@ -15,7 +15,6 @@ class CursesRenderer:
     def __init__(self, window: curses.window, session: Session):
         self.window = window
         self.session = session
-        # self.current_row_by_car = {}
 
         # enable color with default palette
         curses.start_color()
@@ -88,10 +87,12 @@ class CursesRenderer:
         else:
             car_state.lap = completed_sector.lap
             car_state.sector = completed_sector.sector + 1
+        car_state.progress = 0.0
+        car_state.sector_start = timing_event.timestamp
+        car_state.sector_duration = timing_event.sector_duration
 
         self.race_view.update(self.race_state)
 
-        # self.window.refresh()
         curses.doupdate()
 
     def render_clock(self, timestamp: datetime, start_time: datetime):
@@ -102,7 +103,20 @@ class CursesRenderer:
         self._move(self.header_y, x)
         self.window.addstr(str, curses.A_REVERSE)
 
-        self.window.refresh()
+        self._update_car_states(timestamp)
+        self.race_view.update(self.race_state)
+
+        self.window.noutrefresh()
+
+        curses.doupdate()
+
+    def _update_car_states(self, timestamp: datetime):
+        for car_state in self.race_state.cars:
+            if car_state.sector_duration is None:
+                continue
+
+            since_sector_start = timestamp - car_state.sector_start
+            car_state.progress = since_sector_start / car_state.sector_duration
 
     def _color_pair_for_car(self, car: Car) -> int:
         color_number = self.color_map[car.color] if car.color in self.color_map else 0

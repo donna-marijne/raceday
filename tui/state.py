@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from datetime import datetime, timedelta
+from typing import Optional
 
 
 @dataclass()
@@ -9,6 +11,8 @@ class CarState:
     lap: int
     sector: int
     progress: float
+    sector_start: datetime
+    sector_duration: Optional[timedelta]
 
 
 @dataclass()

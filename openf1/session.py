@@ -35,7 +35,7 @@ def _session_from_api(payload: OpenF1Payload):
         cars=cars,
         starting_grid=starting_grid,
         timing_events=timing_events,
-        car_driving_events=car_timing_events,
+        timing_events_by_car=car_timing_events,
     )
 
 

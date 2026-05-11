@@ -13,4 +13,4 @@ class Session:
     cars: dict[int, Car]
     starting_grid: list[Car]
     timing_events: list[TimingEvent]
-    car_driving_events: dict[int, list[TimingEvent]]
+    timing_events_by_car: dict[int, list[TimingEvent]]
