@@ -27,7 +27,8 @@ A terminal tool for replaying Formula 1 races!
     - [ ] Increase the horizontal scale to 3 laps, scrolling with one sector ahead of the leader
     - [ ] Interpolate position based on sector time
     - [ ] Show a pit indicator for cars going through the pit lane
-    - [ ] Ascii art cars!
+    - [x] Ascii art cars!
+      - ⊵o≗o⌳
 - [ ] Even hi-er res animation: use the 3D locations data and the track shape to calculate car progress on each lap
 - [ ] Interaction:
     - [x] Quit

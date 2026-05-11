@@ -1,31 +1,17 @@
 import curses
-from dataclasses import dataclass
 
 import log
-
-
-@dataclass()
-class CarState:
-    number: int
-    acronym: str
-    color: int
-    lap: int
-    sector: int
-    progress: float
-
-
-@dataclass()
-class RaceState:
-    cars: list[CarState]
-    total_laps: int
+from tui.car import Car
+from tui.state import CarState, RaceState
 
 
 class RaceView:
     def __init__(self, window: curses.window, lap_scale=3):
         self.window = window
         self.show_laps = lap_scale
-        self.y_axis_width = 6
+        self.y_axis_width = 6 + len(Car.glyph)
         self.x_axis_height = 2
+        self.cars = {}
 
     def update(self, state: RaceState):
         self.window.erase()
@@ -105,14 +91,16 @@ class RaceView:
                 progress=car.progress,
             )
             car_x_offset = self.y_axis_width + max(0, car_col - min_x_col)
-            self.window.addch(
-                y_row,
-                car_x_offset,
-                " ",
-                curses.color_pair(car.color) | curses.A_REVERSE,
-            )
+            self._draw_car(car, y=y_row, x=car_x_offset)
 
         self.window.noutrefresh()
+
+    def _draw_car(self, car_state: CarState, y: int, x: int):
+        if car_state.number not in self.cars:
+            self.cars[car_state.number] = Car(
+                window=self.window, color=car_state.color, tyre_color=0
+            )
+        self.cars[car_state.number].draw(y=y, x=x)
 
 
 def col_from_progress(sector_cols: int, lap: int, sector: int, progress: float) -> int:
