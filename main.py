@@ -26,6 +26,13 @@ def curses_main(stdscr: curses.window):
         default=10,
         help="time multiplier to use when replaying",
     )
+    parser.add_argument(
+        "-f",
+        "--frequency",
+        type=int,
+        default=30,
+        help="update frequency (per second)",
+    )
 
     args = parser.parse_args()
 
@@ -43,6 +50,7 @@ def curses_main(stdscr: curses.window):
         event_callback=renderer.render_timing_event,
         time_callback=renderer.render_clock,
         time_warp=args.time_warp,
+        frequency=args.frequency,
     )
 
     stdscr.nodelay(False)
