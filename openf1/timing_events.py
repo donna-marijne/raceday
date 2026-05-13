@@ -1,17 +1,13 @@
 from datetime import datetime, timedelta
 
 import log
-from car import Car
-from car_state import CarState
-from sector import Sector
-from timing_event import TimingEvent
-from tyre_compound import TyreCompound
+import model
 
 
-def timing_events_from_api_laps(laps, cars: dict[int, Car]):
+def timing_events_from_api_laps(laps, cars: dict[int, model.Car]):
     """Returns a list of TimingEvents ordered by timestamp"""
 
-    timing_events: list[TimingEvent] = []
+    timing_events: list[model.TimingEvent] = []
     for lap in laps:
         date_start = lap["date_start"]
         duration_sector_1 = lap["duration_sector_1"]
@@ -38,15 +34,15 @@ def timing_events_from_api_laps(laps, cars: dict[int, Car]):
 
             sector_end = last_end + timedelta(seconds=duration)
 
-            sector = Sector(lap_number, i + 1)
+            sector = model.Sector(lap_number, i + 1)
 
-            car_state = CarState(
+            car_state = model.CarState(
                 position=-1,  # calculate later
                 tyre_age=1,
-                tyre_compound=TyreCompound.HARD,
+                tyre_compound=model.TyreCompound.HARD,
             )
 
-            sector = TimingEvent(
+            sector = model.TimingEvent(
                 timestamp=sector_end,
                 sector=sector,
                 sector_duration=None,
@@ -62,7 +58,7 @@ def timing_events_from_api_laps(laps, cars: dict[int, Car]):
 
     # calculate positions and sector durations
     positions_by_sector = {}
-    prev_event_by_car: dict[int, TimingEvent] = {}
+    prev_event_by_car: dict[int, model.TimingEvent] = {}
     for timing_event in timing_events:
         # calculate car position in this sector
         sector = timing_event.sector

@@ -1,9 +1,9 @@
-from tyre_compound import TyreCompound
+import model
 
 TYRE_COLORS = {
-    TyreCompound.HARD: "FFFFFF",
-    TyreCompound.MEDIUM: "FFFD1F",
-    TyreCompound.SOFT: "FF2D2C",
-    TyreCompound.INTERMEDIATE: "3ECC2E",
-    TyreCompound.WET: "078CD1",
+    model.TyreCompound.HARD: "FFFFFF",
+    model.TyreCompound.MEDIUM: "FFFD1F",
+    model.TyreCompound.SOFT: "FF2D2C",
+    model.TyreCompound.INTERMEDIATE: "3ECC2E",
+    model.TyreCompound.WET: "078CD1",
 }

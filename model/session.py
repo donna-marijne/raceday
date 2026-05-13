@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from car import Car
-from timing_event import TimingEvent
+from .car import Car
+from .timing_event import TimingEvent
 
 
 @dataclass

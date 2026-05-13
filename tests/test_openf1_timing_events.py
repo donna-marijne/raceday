@@ -2,23 +2,22 @@ import json
 import unittest
 from pathlib import Path
 
-from car import Car
+import model
 from openf1.timing_events import timing_events_from_api_laps
-from sector import Sector
 
 
 class TestTimingEventsFromJson(unittest.TestCase):
     def setUp(self):
         self.test_data_dir_path = Path(__file__).parent / "data" / "laps"
         self.cars = {
-            11: Car(
+            11: model.Car(
                 number=11,
                 driver_name="Sergio PEREZ",
                 driver_acronym="PER",
                 team_name="Red Bull Racing",
                 color="3671C6",
             ),
-            44: Car(
+            44: model.Car(
                 number=44,
                 driver_name="Lewis HAMILTON",
                 driver_acronym="HAM",
@@ -40,21 +39,21 @@ class TestTimingEventsFromJson(unittest.TestCase):
             events[0].timestamp.isoformat(),
             "2024-07-28T13:04:27.080000+00:00",
         )
-        self.assertEqual(events[0].sector, Sector(1, 1))
+        self.assertEqual(events[0].sector, model.Sector(1, 1))
         self.assertEqual(events[0].car.number, 11)
         self.assertEqual(events[0].car_state.position, 1)
         self.assertEqual(
             events[1].timestamp.isoformat(),
             "2024-07-28T13:05:17.118000+00:00",
         )
-        self.assertEqual(events[1].sector, Sector(1, 2))
+        self.assertEqual(events[1].sector, model.Sector(1, 2))
         self.assertEqual(events[1].car.number, 11)
         self.assertEqual(events[1].car_state.position, 1)
         self.assertEqual(
             events[2].timestamp.isoformat(),
             "2024-07-28T13:05:46.609000+00:00",
         )
-        self.assertEqual(events[2].sector, Sector(1, 3))
+        self.assertEqual(events[2].sector, model.Sector(1, 3))
         self.assertEqual(events[2].car.number, 11)
         self.assertEqual(events[2].car_state.position, 1)
 
@@ -71,7 +70,7 @@ class TestTimingEventsFromJson(unittest.TestCase):
             events[0].timestamp.isoformat(),
             "2024-07-28T13:04:26.998000+00:00",
         )
-        self.assertEqual(events[0].sector, Sector(1, 1))
+        self.assertEqual(events[0].sector, model.Sector(1, 1))
         self.assertEqual(events[0].car.number, 44)
         self.assertEqual(events[0].car_state.position, 1)
         # car 11 lap 1 sector 1
@@ -79,7 +78,7 @@ class TestTimingEventsFromJson(unittest.TestCase):
             events[1].timestamp.isoformat(),
             "2024-07-28T13:04:27.080000+00:00",
         )
-        self.assertEqual(events[1].sector, Sector(1, 1))
+        self.assertEqual(events[1].sector, model.Sector(1, 1))
         self.assertEqual(events[1].car.number, 11)
         self.assertEqual(events[1].car_state.position, 2)
         # car 44 lap 1 sector 2
@@ -87,7 +86,7 @@ class TestTimingEventsFromJson(unittest.TestCase):
             events[2].timestamp.isoformat(),
             "2024-07-28T13:05:16.404000+00:00",
         )
-        self.assertEqual(events[2].sector, Sector(1, 2))
+        self.assertEqual(events[2].sector, model.Sector(1, 2))
         self.assertEqual(events[2].car.number, 44)
         self.assertEqual(events[2].car_state.position, 1)
         # car 11 lap 1 sector 2
@@ -95,7 +94,7 @@ class TestTimingEventsFromJson(unittest.TestCase):
             events[3].timestamp.isoformat(),
             "2024-07-28T13:05:17.118000+00:00",
         )
-        self.assertEqual(events[3].sector, Sector(1, 2))
+        self.assertEqual(events[3].sector, model.Sector(1, 2))
         self.assertEqual(events[3].car.number, 11)
         self.assertEqual(events[3].car_state.position, 2)
         # car 44 lap 1 sector 3
@@ -103,7 +102,7 @@ class TestTimingEventsFromJson(unittest.TestCase):
             events[4].timestamp.isoformat(),
             "2024-07-28T13:05:45.882000+00:00",
         )
-        self.assertEqual(events[4].sector, Sector(1, 3))
+        self.assertEqual(events[4].sector, model.Sector(1, 3))
         self.assertEqual(events[4].car.number, 44)
         self.assertEqual(events[4].car_state.position, 1)
         # car 11 lap 1 sector 3
@@ -111,7 +110,7 @@ class TestTimingEventsFromJson(unittest.TestCase):
             events[5].timestamp.isoformat(),
             "2024-07-28T13:05:46.609000+00:00",
         )
-        self.assertEqual(events[5].sector, Sector(1, 3))
+        self.assertEqual(events[5].sector, model.Sector(1, 3))
         self.assertEqual(events[5].car.number, 11)
         self.assertEqual(events[5].car_state.position, 2)
 

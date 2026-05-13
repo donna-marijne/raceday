@@ -1,8 +1,8 @@
 import unittest
 from pathlib import Path
 
+import model
 from openf1.session import session_from_source_dir
-from timing_event import TimingEvent
 
 
 class TestOpenF1SessionFromSourceDir(unittest.TestCase):
@@ -89,7 +89,7 @@ class TestOpenF1SessionFromSourceDir(unittest.TestCase):
         self.assertEqual(len(session.timing_events), 1188)
 
 
-def highest_position(timing_events: list[TimingEvent], car: int) -> int:
+def highest_position(timing_events: list[model.TimingEvent], car: int) -> int:
     timing_event = min(
         (e for e in timing_events if e.car.number == car),
         key=lambda e: e.car_state.position,

@@ -4,12 +4,12 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
+import model
 from curses_renderer import CursesRenderer
 from datetime_json_encoder import DateTimeJSONEncoder
 from event_loop import event_loop
 from handle_input import handle_input
 from openf1.session import session_from_source_dir
-from session import Session
 
 
 def curses_main(stdscr: curses.window):
@@ -69,7 +69,7 @@ def init_session(args):
     return session
 
 
-def debug_session(session: Session):
+def debug_session(session: model.Session):
     timing_events_json = json.dumps(
         [asdict(te) for te in session.timing_events], cls=DateTimeJSONEncoder
     )

@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Optional
 
-from car import Car
-from car_state import CarState
-from sector import Sector
+from .car import Car
+from .car_state import CarState
+from .sector import Sector
 
 
 @dataclass

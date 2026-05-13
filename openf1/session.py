@@ -1,10 +1,8 @@
 from datetime import datetime
 
-from car import Car
+import model
 from openf1.openf1_payload import OpenF1Payload
 from openf1.timing_events import timing_events_from_api_laps
-from session import Session
-from timing_event import TimingEvent
 
 
 def session_from_source_dir(dir_path):
@@ -28,7 +26,7 @@ def _session_from_api(payload: OpenF1Payload):
     total_laps = _total_laps(timing_events)
     car_timing_events = _car_timing_events(timing_events)
 
-    return Session(
+    return model.Session(
         name=f"{payload.meeting['year']} {payload.meeting['meeting_name']}",
         start=start,
         total_laps=total_laps,
@@ -61,7 +59,7 @@ def _session_start_from_api(payload: OpenF1Payload) -> datetime:
 def _cars_from_api(drivers):
     cars = {}
     for driver in drivers:
-        cars[driver["driver_number"]] = Car(
+        cars[driver["driver_number"]] = model.Car(
             number=driver["driver_number"],
             driver_name=driver["full_name"],
             driver_acronym=driver["name_acronym"],
@@ -100,8 +98,8 @@ def _total_laps(timing_events):
 
 
 def _car_timing_events(
-    timing_events: list[TimingEvent],
-) -> dict[int, list[TimingEvent]]:
+    timing_events: list[model.TimingEvent],
+) -> dict[int, list[model.TimingEvent]]:
     car_timing_events = {}
     for timing_event in timing_events:
         car = timing_event.car.number

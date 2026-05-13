@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from tyre_compound import TyreCompound
+from .tyre_compound import TyreCompound
 
 
 @dataclass()

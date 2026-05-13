@@ -2,19 +2,16 @@ import curses
 from datetime import datetime
 
 import log
-from car import Car
+import model
 from curses_color import curses_color_from_hex_string
 from format_timedelta import format_timedelta
 from race_state_from_session import race_state_from_session
-from session import Session
-from timing_event import TimingEvent
 from tui.race_view import RaceView
 from tyre_colors import TYRE_COLORS
-from tyre_compound import TyreCompound
 
 
 class CursesRenderer:
-    def __init__(self, window: curses.window, session: Session):
+    def __init__(self, window: curses.window, session: model.Session):
         self.window = window
         self.session = session
 
@@ -64,7 +61,7 @@ class CursesRenderer:
 
         self.window.refresh()
 
-    def render_timing_event(self, timing_event: TimingEvent):
+    def render_timing_event(self, timing_event: model.TimingEvent):
         log.debug(f"render_timing_event: {timing_event}")
 
         car_states = self.race_state.cars
@@ -120,16 +117,16 @@ class CursesRenderer:
             since_sector_start = timestamp - car_state.sector_start
             car_state.progress = since_sector_start / car_state.sector_duration
 
-    def _color_pair_for_car(self, car: Car) -> int:
+    def _color_pair_for_car(self, car: model.Car) -> int:
         color_number = self.color_map[car.color] if car.color in self.color_map else 0
         return curses.color_pair(color_number)
 
-    def _color_pair_for_tyre_compound(self, tyre_compound: TyreCompound) -> int:
+    def _color_pair_for_tyre_compound(self, tyre_compound: model.TyreCompound) -> int:
         hex_color = TYRE_COLORS[tyre_compound]
         color_number = self.color_map[hex_color] if hex_color in self.color_map else 0
         return curses.color_pair(color_number)
 
-    def _render_car(self, car: Car):
+    def _render_car(self, car: model.Car):
         self.window.addch(" ", self._color_pair_for_car(car) | curses.A_REVERSE)
 
     def _move(self, y=None, x=None, dy=None, dx=None):
@@ -156,7 +153,7 @@ class CursesRenderer:
 
         self.color_map = {}
         next_color_number = 16
-        tyres: list[str] = [TYRE_COLORS[e.value] for e in TyreCompound]
+        tyres: list[str] = [TYRE_COLORS[e.value] for e in model.TyreCompound]
         car_colors = [car.color for car in self.session.cars.values()]
         for hex_color in tyres + car_colors:
             if hex_color in self.color_map:

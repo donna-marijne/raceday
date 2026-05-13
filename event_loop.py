@@ -1,11 +1,11 @@
 from datetime import datetime
 from time import sleep
 
-from session import Session
+import model
 
 
 def event_loop(
-    session: Session,
+    session: model.Session,
     input_callback,
     event_callback,
     time_callback,
