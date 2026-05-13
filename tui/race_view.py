@@ -1,8 +1,9 @@
 import curses
 
 import log
-from tui.car import Car
-from tui.state import CarState, RaceState
+
+from .car import Car
+from .state import CarState, RaceState
 
 
 class RaceView:
@@ -81,7 +82,7 @@ class RaceView:
             y_row = self.x_axis_height + i
 
             # print the label with 1 col offset
-            self.window.addstr(y_row, 1, car.acronym, curses.color_pair(car.color))
+            self.window.addstr(y_row, 1, car.acronym, car.color)
 
             # draw the car
             car_col = col_from_progress(

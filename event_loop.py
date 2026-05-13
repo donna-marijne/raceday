@@ -31,7 +31,7 @@ def event_loop(
             elapsed_time = now - wall_time
             sim_time += elapsed_time * time_warp
             wall_time = now
-            time_callback(sim_time, start_time=start_time)
+            time_callback(sim_time)
 
         assert event.timestamp <= sim_time
-        event_callback(event)
+        event_callback(sim_time, event)

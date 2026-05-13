@@ -1,7 +1,8 @@
 import model
-from tui.color import color_pair_from_hex
-from tui.race_view import CarState, RaceState
 from tyre_colors import TYRE_COLORS
+
+from .color import color_pair_from_hex
+from .race_view import CarState, RaceState
 
 
 def race_state_from_session(session: model.Session) -> RaceState:
