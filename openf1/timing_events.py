@@ -2,8 +2,10 @@ from datetime import datetime, timedelta
 
 import log
 from car import Car
+from car_state import CarState
 from sector import Sector
 from timing_event import TimingEvent
+from tyre_compound import TyreCompound
 
 
 def timing_events_from_api_laps(laps, cars: dict[int, Car]):
@@ -38,12 +40,18 @@ def timing_events_from_api_laps(laps, cars: dict[int, Car]):
 
             sector = Sector(lap_number, i + 1)
 
+            car_state = CarState(
+                position=-1,  # calculate later
+                tyre_age=1,
+                tyre_compound=TyreCompound.HARD,
+            )
+
             sector = TimingEvent(
                 timestamp=sector_end,
                 sector=sector,
                 sector_duration=None,
                 car=car,
-                car_position=-1,
+                car_state=car_state,
             )
 
             timing_events.append(sector)
@@ -61,7 +69,7 @@ def timing_events_from_api_laps(laps, cars: dict[int, Car]):
         if sector not in positions_by_sector:
             positions_by_sector[sector] = []
         positions_by_sector[sector].append(timing_event.car)
-        timing_event.car_position = len(positions_by_sector[sector])
+        timing_event.car_state.position = len(positions_by_sector[sector])
 
         # calculate sector durations
         car_number = timing_event.car.number

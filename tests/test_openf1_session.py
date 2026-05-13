@@ -92,9 +92,9 @@ class TestOpenF1SessionFromSourceDir(unittest.TestCase):
 def highest_position(timing_events: list[TimingEvent], car: int) -> int:
     timing_event = min(
         (e for e in timing_events if e.car.number == car),
-        key=lambda e: e.car_position,
+        key=lambda e: e.car_state.position,
         default=None,
     )
     if timing_event is None:
         return -1
-    return timing_event.car_position
+    return timing_event.car_state.position

@@ -8,6 +8,7 @@ class CarState:
     number: int
     acronym: str
     color: int
+    tyre_color: int
     lap: int
     sector: int
     progress: float

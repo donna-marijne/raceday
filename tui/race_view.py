@@ -98,7 +98,9 @@ class RaceView:
     def _draw_car(self, car_state: CarState, y: int, x: int):
         if car_state.number not in self.cars:
             self.cars[car_state.number] = Car(
-                window=self.window, color=car_state.color, tyre_color=0
+                window=self.window,
+                color=car_state.color,
+                tyre_color=car_state.tyre_color,
             )
         self.cars[car_state.number].draw(y=y, x=x)
 

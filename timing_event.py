@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from car import Car
+from car_state import CarState
 from sector import Sector
 
 
@@ -14,4 +15,4 @@ class TimingEvent:
     sector: Sector
     sector_duration: Optional[timedelta]
     car: Car
-    car_position: int
+    car_state: CarState

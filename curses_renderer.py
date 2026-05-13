@@ -9,6 +9,8 @@ from race_state_from_session import race_state_from_session
 from session import Session
 from timing_event import TimingEvent
 from tui.race_view import RaceView
+from tyre_colors import TYRE_COLORS
+from tyre_compound import TyreCompound
 
 
 class CursesRenderer:
@@ -67,7 +69,7 @@ class CursesRenderer:
 
         car_states = self.race_state.cars
         car = timing_event.car
-        car_index = timing_event.car_position - 1
+        car_index = timing_event.car_state.position - 1
 
         if car_states[car_index].number != car.number:
             old_car_index = None
@@ -122,6 +124,11 @@ class CursesRenderer:
         color_number = self.color_map[car.color] if car.color in self.color_map else 0
         return curses.color_pair(color_number)
 
+    def _color_pair_for_tyre_compound(self, tyre_compound: TyreCompound) -> int:
+        hex_color = TYRE_COLORS[tyre_compound]
+        color_number = self.color_map[hex_color] if hex_color in self.color_map else 0
+        return curses.color_pair(color_number)
+
     def _render_car(self, car: Car):
         self.window.addch(" ", self._color_pair_for_car(car) | curses.A_REVERSE)
 
@@ -149,8 +156,9 @@ class CursesRenderer:
 
         self.color_map = {}
         next_color_number = 16
-        for car in self.session.cars.values():
-            hex_color = car.color
+        tyres: list[str] = [TYRE_COLORS[e.value] for e in TyreCompound]
+        car_colors = [car.color for car in self.session.cars.values()]
+        for hex_color in tyres + car_colors:
             if hex_color in self.color_map:
                 continue
 
