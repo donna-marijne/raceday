@@ -1,11 +1,10 @@
 import model
+from tui.color import color_pair_from_hex
 from tui.race_view import CarState, RaceState
 from tyre_colors import TYRE_COLORS
 
 
-def race_state_from_session(
-    session: model.Session, color_map: dict[str, int]
-) -> RaceState:
+def race_state_from_session(session: model.Session) -> RaceState:
     car_states = []
     for car in session.starting_grid:
         first_sector_duration = None
@@ -17,8 +16,8 @@ def race_state_from_session(
         car_state = CarState(
             number=car.number,
             acronym=car.driver_acronym,
-            color=color_map[car.color],
-            tyre_color=color_map[TYRE_COLORS[model.TyreCompound.SOFT]],
+            color=color_pair_from_hex(car.color),
+            tyre_color=color_pair_from_hex(TYRE_COLORS[model.TyreCompound.SOFT]),
             lap=1,
             sector=1,
             progress=0,
