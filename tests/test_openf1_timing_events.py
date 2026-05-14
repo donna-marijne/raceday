@@ -9,7 +9,12 @@ from openf1.timing_events import timing_events_from_api
 
 def _create_test_payload(laps):
     return OpenF1Payload(
-        session={}, meeting={}, drivers=[], starting_grid=[], laps=laps
+        session={},
+        meeting={},
+        drivers=[],
+        starting_grid=[],
+        laps=laps,
+        stints=[],
     )
 
 

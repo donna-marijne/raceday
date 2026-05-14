@@ -13,6 +13,7 @@ class OpenF1Payload:
     drivers: list[JSONDict]
     starting_grid: list[JSONDict]
     laps: list[JSONDict]
+    stints: list[JSONDict]
 
     @classmethod
     def from_source_dir(cls, dir_path):
@@ -47,10 +48,16 @@ class OpenF1Payload:
             json_str = laps_file.read()
             laps = json.loads(json_str)
 
+        stints = None
+        with (dir_path / "stints.json").open("r") as stints_file:
+            json_str = stints_file.read()
+            stints = json.loads(json_str)
+
         return cls(
             session=session,
             meeting=meeting,
             drivers=drivers,
             starting_grid=starting_grid,
             laps=laps,
+            stints=stints,
         )
