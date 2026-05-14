@@ -127,13 +127,21 @@ def _active_stint(
     stints: dict[int, list[model.Stint]], car_number: int, lap: int
 ) -> model.Stint:
     assert car_number in stints
-    for stint in reversed(stints[car_number]):
-        if stint.lap_start <= lap:
+    for fallback_stint in reversed(stints[car_number]):
+        if fallback_stint.lap_start <= lap:
             log.debug(
-                f"found active stint {stint} in {stints[car_number]} for car {car_number}"
+                f"found active stint {fallback_stint} in {stints[car_number]} for car {car_number}"
             )
-            return stint
+            return fallback_stint
+
+    if len(stints[car_number]) > 0:
+        # e.g. session_key=11240, driver_number=63
+        fallback_stint = stints[car_number][0]
+        log.debug(
+            f"no stint for car {car_number} on lap {lap} in {stints[car_number]}; falling back to {fallback_stint}"
+        )
+        return fallback_stint
 
     raise Exception(
-        f"no stint found for car {car_number} on lap {lap} in {stints[car_number]}"
+        f"no stint found for car {car_number} on lap {lap} in {stints[car_number]} and no fallback available"
     )

@@ -118,7 +118,6 @@ def _starting_grid_from_api(
             raise Exception(f"car {driver_number} in starting_grid but not in stints")
 
         stint = stints[driver_number][0]
-        assert stint.lap_start == 1
 
         car_state = model.CarState(
             number=driver_number,

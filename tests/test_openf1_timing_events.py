@@ -37,6 +37,26 @@ class TestTimingEventsFromJson(unittest.TestCase):
                 color="27F4D2",
             ),
         }
+        self.stints = {
+            11: [
+                model.Stint(
+                    number=1,
+                    car_number=11,
+                    lap_start=1,
+                    tyre_compound=model.TyreCompound("MEDIUM"),
+                    tyre_age_at_start=3,
+                )
+            ],
+            44: [
+                model.Stint(
+                    number=1,
+                    car_number=44,
+                    lap_start=1,
+                    tyre_compound=model.TyreCompound("MEDIUM"),
+                    tyre_age_at_start=3,
+                )
+            ],
+        }
 
     def test_single(self):
         file_path = self.test_data_dir_path / "single.json"
@@ -45,7 +65,9 @@ class TestTimingEventsFromJson(unittest.TestCase):
             json_str = file.read()
             laps = json.loads(json_str)
 
-        events = timing_events_from_api(_create_test_payload(laps), self.cars)
+        events = timing_events_from_api(
+            _create_test_payload(laps), cars=self.cars, stints=self.stints
+        )
         self.assertEqual(len(events), 3)
         self.assertEqual(
             events[0].timestamp.isoformat(),
@@ -75,7 +97,9 @@ class TestTimingEventsFromJson(unittest.TestCase):
         with file_path.open("r") as file:
             json_str = file.read()
             laps = json.loads(json_str)
-        events = timing_events_from_api(_create_test_payload(laps), self.cars)
+        events = timing_events_from_api(
+            _create_test_payload(laps), cars=self.cars, stints=self.stints
+        )
         self.assertEqual(len(events), 6)
         # car 44 lap 1 sector 1
         self.assertEqual(
