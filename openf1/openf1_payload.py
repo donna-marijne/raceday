@@ -2,16 +2,17 @@ import json
 from dataclasses import dataclass
 from typing import TypeAlias
 
-JSON: TypeAlias = dict[str, "JSON"] | list["JSON"] | str | int | float | bool | None
+JSONValue: TypeAlias = str | int | float | bool | None
+JSONDict: TypeAlias = dict[str, "JSONValue"]
 
 
 @dataclass
 class OpenF1Payload:
-    session: dict[str, JSON]
-    meeting: dict[str, JSON]
-    drivers: list[dict[str, JSON]]
-    starting_grid: list[dict[str, JSON]]
-    laps: list[dict[str, JSON]]
+    session: JSONDict
+    meeting: JSONDict
+    drivers: list[JSONDict]
+    starting_grid: list[JSONDict]
+    laps: list[JSONDict]
 
     @classmethod
     def from_source_dir(cls, dir_path):

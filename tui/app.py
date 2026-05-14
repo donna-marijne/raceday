@@ -103,10 +103,10 @@ class App:
         self.header.sim_time = timestamp
         self.header.update()
 
-        self._update_car_states(timestamp)
+        self._update_car_progress(timestamp)
         self.race_view.update(self.race_state)
 
-    def _update_car_states(self, timestamp: datetime):
+    def _update_car_progress(self, timestamp: datetime):
         for car_state in self.race_state.cars:
             if car_state.sector_duration is None:
                 continue

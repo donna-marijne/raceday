@@ -3,7 +3,14 @@ import unittest
 from pathlib import Path
 
 import model
-from openf1.timing_events import timing_events_from_api_laps
+from openf1.openf1_payload import OpenF1Payload
+from openf1.timing_events import timing_events_from_api
+
+
+def _create_test_payload(laps):
+    return OpenF1Payload(
+        session={}, meeting={}, drivers=[], starting_grid=[], laps=laps
+    )
 
 
 class TestTimingEventsFromJson(unittest.TestCase):
@@ -33,7 +40,7 @@ class TestTimingEventsFromJson(unittest.TestCase):
             json_str = file.read()
             laps = json.loads(json_str)
 
-        events = timing_events_from_api_laps(laps, self.cars)
+        events = timing_events_from_api(_create_test_payload(laps), self.cars)
         self.assertEqual(len(events), 3)
         self.assertEqual(
             events[0].timestamp.isoformat(),
@@ -63,7 +70,7 @@ class TestTimingEventsFromJson(unittest.TestCase):
         with file_path.open("r") as file:
             json_str = file.read()
             laps = json.loads(json_str)
-        events = timing_events_from_api_laps(laps, self.cars)
+        events = timing_events_from_api(_create_test_payload(laps), self.cars)
         self.assertEqual(len(events), 6)
         # car 44 lap 1 sector 1
         self.assertEqual(

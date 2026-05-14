@@ -2,33 +2,43 @@ from datetime import datetime, timedelta
 
 import log
 import model
+from openf1.openf1_payload import JSONValue, OpenF1Payload
 
 
-def timing_events_from_api_laps(laps, cars: dict[int, model.Car]):
+def timing_events_from_api(payload: OpenF1Payload, cars: dict[int, model.Car]):
     """Returns a list of TimingEvents ordered by timestamp"""
+
+    laps = payload.laps
 
     timing_events: list[model.TimingEvent] = []
     for lap in laps:
-        date_start = lap["date_start"]
-        duration_sector_1 = lap["duration_sector_1"]
-        duration_sector_2 = lap["duration_sector_2"]
-        duration_sector_3 = lap["duration_sector_3"]
-        lap_duration = lap["lap_duration"]
-        driver_number = lap["driver_number"]
-        lap_number = lap["lap_number"]
+        date_start = _datetime_from_json(lap["date_start"])
+        duration_sector_1 = _float_from_json(lap["duration_sector_1"])
+        duration_sector_2 = _float_from_json(lap["duration_sector_2"])
+        duration_sector_3 = _float_from_json(lap["duration_sector_3"])
+        lap_duration = _float_from_json(lap["lap_duration"])
+        driver_number = _int_from_json(lap["driver_number"])
+        lap_number = _int_from_json(lap["lap_number"])
+
+        if driver_number is None:
+            raise ValueError(f"driver_number is None: {lap}")
+
+        if lap_number is None:
+            raise ValueError(f"lap_number is None: {lap}")
 
         car = cars[driver_number]
 
         if date_start is None:
+            # potentially a DNS
             log.debug(f"date_start is None: {lap}")
             continue
 
-        last_end = datetime.fromisoformat(date_start)
+        last_end = date_start
         sector_durations = _fixup_sector_durations(
             lap_duration, duration_sector_1, duration_sector_2, duration_sector_3
         )
         for i, duration in enumerate(sector_durations):
-            if duration == None:
+            if duration is None:
                 log.debug(f"duration_sector_{i} is None: {lap}")
                 continue
 
@@ -104,3 +114,21 @@ def _fixup_sector_durations(
         durations[missing_sector] = lap_duration - durations_total
 
     return durations
+
+
+def _datetime_from_json(json: JSONValue) -> datetime | None:
+    if json is None:
+        return None
+    return datetime.fromisoformat(str(json))
+
+
+def _int_from_json(json: JSONValue) -> int | None:
+    if json is None:
+        return None
+    return int(json)
+
+
+def _float_from_json(json: JSONValue) -> float | None:
+    if json is None:
+        return None
+    return float(json)

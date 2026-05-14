@@ -17,7 +17,7 @@ A terminal tool for replaying Formula 1 races!
     - [x] Show driver name/acronym and team color code (openf1)
     - [ ] Current tyre compound
     - [ ] Current tyre age
-    - [ ] The track name and metadata
+    - [x] The track name and metadata
     - [x] Use the start grid to show initial correct order
     - [x] Current track time
     - [ ] Current track weather/temp

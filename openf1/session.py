@@ -2,7 +2,7 @@ from datetime import datetime
 
 import model
 from openf1.openf1_payload import OpenF1Payload
-from openf1.timing_events import timing_events_from_api_laps
+from openf1.timing_events import timing_events_from_api
 
 
 def session_from_source_dir(dir_path):
@@ -22,7 +22,7 @@ def _session_from_api(payload: OpenF1Payload):
     start = _session_start_from_api(payload)
     cars = _cars_from_api(payload.drivers)
     starting_grid = _starting_grid_from_api(payload.starting_grid, cars)
-    timing_events = timing_events_from_api_laps(payload.laps, cars)
+    timing_events = timing_events_from_api(payload, cars)
     total_laps = _total_laps(timing_events)
     car_timing_events = _car_timing_events(timing_events)
 
