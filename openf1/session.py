@@ -1,6 +1,8 @@
 from datetime import datetime
 
 import model
+from model.tyre_compound import TyreCompound
+from openf1 import json_validation
 from openf1.openf1_payload import OpenF1Payload
 from openf1.timing_events import timing_events_from_api
 
@@ -21,8 +23,9 @@ def _session_from_api(payload: OpenF1Payload):
 
     start = _session_start_from_api(payload)
     cars = _cars_from_api(payload.drivers)
-    starting_grid = _starting_grid_from_api(payload.starting_grid, cars)
-    timing_events = timing_events_from_api(payload, cars)
+    stints = _stints_from_api(payload)
+    starting_grid = _starting_grid_from_api(payload, stints)
+    timing_events = timing_events_from_api(payload, cars=cars, stints=stints)
     total_laps = _total_laps(timing_events)
     car_timing_events = _car_timing_events(timing_events)
 
@@ -56,6 +59,35 @@ def _session_start_from_api(payload: OpenF1Payload) -> datetime:
     return start
 
 
+def _stints_from_api(payload: OpenF1Payload) -> dict[int, list[model.Stint]]:
+    """Returns the stints from the payload in a dict by driver number and sorted in race order"""
+    stints_map: dict[int, list[model.Stint]] = {}
+    for stint_json in payload.stints:
+        stint_number = json_validation.to_int(stint_json["stint_number"])
+        driver_number = json_validation.to_int(stint_json["driver_number"])
+        lap_start = json_validation.to_int(stint_json["lap_start"])
+        compound = json_validation.to_str(stint_json["compound"])
+        tyre_age_at_start = json_validation.to_int(stint_json["tyre_age_at_start"])
+
+        stint = model.Stint(
+            number=stint_number,
+            car_number=driver_number,
+            lap_start=lap_start,
+            tyre_compound=TyreCompound[compound],
+            tyre_age_at_start=tyre_age_at_start,
+        )
+
+        if driver_number not in stints_map:
+            stints_map[driver_number] = []
+
+        stints_map[driver_number].append(stint)
+
+    for car_number in stints_map:
+        stints_map[car_number] = sorted(stints_map[car_number], key=lambda s: s.number)
+
+    return stints_map
+
+
 def _cars_from_api(drivers):
     cars = {}
     for driver in drivers:
@@ -70,22 +102,32 @@ def _cars_from_api(drivers):
     return cars
 
 
-def _starting_grid_from_api(starting_grid, cars):
+def _starting_grid_from_api(
+    payload: OpenF1Payload, stints: dict[int, list[model.Stint]]
+) -> list[model.CarState]:
     grid = []
-    for grid_slot in starting_grid:
-        position = grid_slot["position"]
-        driver_number = grid_slot["driver_number"]
-
-        if driver_number not in cars:
-            raise ValueError(
-                f"driver_number {driver_number} in starting_grid but not drivers"
-            )
+    for grid_slot in payload.starting_grid:
+        position = json_validation.to_int(grid_slot["position"])
+        driver_number = json_validation.to_int(grid_slot["driver_number"])
 
         # grid slots may be empty or out of order
         if position > len(grid):
             grid.extend([None] * (position - len(grid)))
 
-        grid[position - 1] = cars[driver_number]
+        if driver_number not in stints:
+            raise Exception(f"car {driver_number} in starting_grid but not in stints")
+
+        stint = stints[driver_number][0]
+        assert stint.lap_start == 1
+
+        car_state = model.CarState(
+            number=driver_number,
+            position=position,
+            tyre_age=stint.tyre_age_at_start,
+            tyre_compound=stint.tyre_compound,
+        )
+
+        grid[position - 1] = car_state
 
     return grid
 

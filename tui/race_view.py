@@ -17,8 +17,6 @@ class RaceView:
     def update(self, state: RaceState):
         self.window.erase()
 
-        log.debug(f"state={state}")
-
         _, window_width = self.window.getmaxyx()
         track_width = window_width - 1 - self.y_axis_width
         sector_width = track_width // (self.show_laps * 3)  # cols per sector
@@ -103,6 +101,8 @@ class RaceView:
                 color=car_state.color,
                 tyre_color=car_state.tyre_color,
             )
+
+        self.cars[car_state.number].tyre_color = car_state.tyre_color
         self.cars[car_state.number].draw(y=y, x=x)
 
 

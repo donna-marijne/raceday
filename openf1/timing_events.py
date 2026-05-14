@@ -2,29 +2,26 @@ from datetime import datetime, timedelta
 
 import log
 import model
-from openf1.openf1_payload import JSONValue, OpenF1Payload
+from openf1 import json_validation
+from openf1.openf1_payload import JSONDict, JSONValue, OpenF1Payload
 
 
-def timing_events_from_api(payload: OpenF1Payload, cars: dict[int, model.Car]):
+def timing_events_from_api(
+    payload: OpenF1Payload,
+    cars: dict[int, model.Car],
+    stints: dict[int, list[model.Stint]],
+):
     """Returns a list of TimingEvents ordered by timestamp"""
 
-    laps = payload.laps
-
     timing_events: list[model.TimingEvent] = []
-    for lap in laps:
-        date_start = _datetime_from_json(lap["date_start"])
-        duration_sector_1 = _float_from_json(lap["duration_sector_1"])
-        duration_sector_2 = _float_from_json(lap["duration_sector_2"])
-        duration_sector_3 = _float_from_json(lap["duration_sector_3"])
-        lap_duration = _float_from_json(lap["lap_duration"])
-        driver_number = _int_from_json(lap["driver_number"])
-        lap_number = _int_from_json(lap["lap_number"])
-
-        if driver_number is None:
-            raise ValueError(f"driver_number is None: {lap}")
-
-        if lap_number is None:
-            raise ValueError(f"lap_number is None: {lap}")
+    for lap in payload.laps:
+        date_start = json_validation.to_optional_datetime(lap["date_start"])
+        duration_sector_1 = json_validation.to_optional_float(lap["duration_sector_1"])
+        duration_sector_2 = json_validation.to_optional_float(lap["duration_sector_2"])
+        duration_sector_3 = json_validation.to_optional_float(lap["duration_sector_3"])
+        lap_duration = json_validation.to_optional_float(lap["lap_duration"])
+        driver_number = json_validation.to_int(lap["driver_number"])
+        lap_number = json_validation.to_int(lap["lap_number"])
 
         car = cars[driver_number]
 
@@ -32,6 +29,8 @@ def timing_events_from_api(payload: OpenF1Payload, cars: dict[int, model.Car]):
             # potentially a DNS
             log.debug(f"date_start is None: {lap}")
             continue
+
+        stint = _active_stint(stints=stints, car_number=car.number, lap=lap_number)
 
         last_end = date_start
         sector_durations = _fixup_sector_durations(
@@ -42,14 +41,22 @@ def timing_events_from_api(payload: OpenF1Payload, cars: dict[int, model.Car]):
                 log.debug(f"duration_sector_{i} is None: {lap}")
                 continue
 
+            if i == 2:
+                stint = _active_stint(
+                    stints=stints, car_number=car.number, lap=lap_number + 1
+                )
+
             sector_end = last_end + timedelta(seconds=duration)
 
             sector = model.Sector(lap_number, i + 1)
 
+            tyre_age = lap_number - stint.tyre_age_at_start
+
             car_state = model.CarState(
+                number=car.number,
                 position=-1,  # calculate later
-                tyre_age=1,
-                tyre_compound=model.TyreCompound.HARD,
+                tyre_age=tyre_age,
+                tyre_compound=stint.tyre_compound,
             )
 
             sector = model.TimingEvent(
@@ -116,19 +123,17 @@ def _fixup_sector_durations(
     return durations
 
 
-def _datetime_from_json(json: JSONValue) -> datetime | None:
-    if json is None:
-        return None
-    return datetime.fromisoformat(str(json))
+def _active_stint(
+    stints: dict[int, list[model.Stint]], car_number: int, lap: int
+) -> model.Stint:
+    assert car_number in stints
+    for stint in reversed(stints[car_number]):
+        if stint.lap_start <= lap:
+            log.debug(
+                f"found active stint {stint} in {stints[car_number]} for car {car_number}"
+            )
+            return stint
 
-
-def _int_from_json(json: JSONValue) -> int | None:
-    if json is None:
-        return None
-    return int(json)
-
-
-def _float_from_json(json: JSONValue) -> float | None:
-    if json is None:
-        return None
-    return float(json)
+    raise Exception(
+        f"no stint found for car {car_number} on lap {lap} in {stints[car_number]}"
+    )

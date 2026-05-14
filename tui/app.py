@@ -6,7 +6,7 @@ import log
 import model
 from tyre_colors import TYRE_COLORS
 
-from .color import init_colors
+from .color import color_pair_from_hex, init_colors
 from .header import Header
 from .race_state_from_session import race_state_from_session
 from .race_view import RaceView
@@ -94,6 +94,9 @@ class App:
         car_state.progress = 0.0
         car_state.sector_start = timing_event.timestamp
         car_state.sector_duration = timing_event.sector_duration
+        car_state.tyre_color = color_pair_from_hex(
+            TYRE_COLORS[timing_event.car_state.tyre_compound]
+        )
 
         self.race_view.update(self.race_state)
 

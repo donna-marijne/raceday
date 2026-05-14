@@ -7,6 +7,7 @@ from .tyre_compound import TyreCompound
 class CarState:
     """Represents the state of a car at a single point in time"""
 
+    number: int
     position: int
     tyre_age: int
     tyre_compound: TyreCompound
