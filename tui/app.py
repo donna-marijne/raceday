@@ -44,7 +44,11 @@ class App:
             2,
             0,
         )
-        self.race_view = RaceView(window=race_view_window)
+        self.race_view = RaceView(
+            window=race_view_window,
+            lap_scale=3,
+            sector_split=self.session.sector_split,
+        )
         self.race_view.update(self.race_state)
 
         curses.doupdate()
