@@ -60,7 +60,7 @@ Sprint races are supported, use the `session_name` field to distinguish sprint s
 - [ ] Hi res animation:
     - [x] Increase the horizontal scale to 3 laps, scrolling with one sector ahead of the leader
     - [x] Interpolate position based on sector time
-    - [ ] Scale sector length to relative duration (use pole quali lap times?)
+    - [x] Scale sector length to relative duration (use fastest lap sector times from quali)
     - [ ] Reorder cars within a sector (can sort by lap/sector/progress now)
     - [ ] Show a pit indicator for cars going through the pit lane
     - [x] Ascii art cars!
