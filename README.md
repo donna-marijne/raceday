@@ -2,6 +2,40 @@
 
 A terminal tool for replaying Formula 1 races!
 
+## Quick start
+
+Requirements:
+- Python with the `curses` module
+- `uv`
+
+API access is not yet implemented, but the program can be run with a local dataset. The repo includes several race session datasets in `tests/data/payloads`.
+
+Run the replay of the 2026 Chinese Grand Prix with default settings:
+
+```bash
+uv run main.py -d tests/data/payloads/11245
+```
+
+Run the replay of the 2026 Chinese Sprint with a 100x time warp factor at 60 frames per second:
+
+```bash
+uv run main.py -d tests/data/payloads/11240 -w 100 -f 60
+```
+
+## Getting more data
+
+While the program runs in offline mode, additional datasets can be downloaded using the `fetch_test_data.sh` shell script:
+
+```bash
+./fetch_test_data.sh <meeting_key> <quali_session_key> <race_session_key>
+```
+
+Use an OpenF1 query to find the `meeting_key` and `session_key`s for both qualifying and race, e.g.:
+
+https://api.openf1.org/v1/sessions?country_name=Belgium&year=2023
+
+Sprint races are supported, use the `session_name` field to distinguish sprint sessions from the grand prix.
+
 ## Implementation plan
 
 - [x] Data analysis:
