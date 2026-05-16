@@ -4,7 +4,7 @@ from typing import Tuple
 import model
 from model.tyre_compound import TyreCompound
 from openf1 import json_validation
-from openf1.openf1_payload import JSONDict, OpenF1Payload
+from openf1.openf1_payload import OpenF1Payload
 from openf1.timing_events import timing_events_from_api
 
 
@@ -22,14 +22,9 @@ def _session_from_api(payload: OpenF1Payload):
     if len(payload.laps) == 0:
         raise ValueError(f"unexpectedly saw {len(payload.laps)} laps")
 
-    tmp_quali_lap: JSONDict = {
-        "duration_sector_1": 24.013,
-        "duration_sector_2": 27.664,
-        "duration_sector_3": 40.387,
-    }
-
     start = _session_start_from_api(payload)
-    sector_split = _sector_split_from_quali_lap(tmp_quali_lap)
+    quali_lap = _quali_lap_from_api(payload)
+    sector_split = _sector_split_from_quali_lap(quali_lap)
     cars = _cars_from_api(payload.drivers)
     stints = _stints_from_api(payload)
     starting_grid = _starting_grid_from_api(payload, stints)
@@ -66,6 +61,27 @@ def _session_start_from_api(payload: OpenF1Payload) -> datetime:
 
     assert start is not None
     return start
+
+
+def _quali_lap_from_api(payload: OpenF1Payload) -> Tuple[float, float, float]:
+    fastest_lap = float("inf")
+    fastest_lap_sectors = None
+    for lap in payload.qualifying_laps:
+        lap_duration = json_validation.to_optional_float(lap["lap_duration"])
+        if lap_duration is None or lap_duration >= fastest_lap:
+            continue
+
+        fastest_lap = lap_duration
+
+        duration_sector_1 = json_validation.to_float(lap["duration_sector_1"])
+        duration_sector_2 = json_validation.to_float(lap["duration_sector_2"])
+        duration_sector_3 = json_validation.to_float(lap["duration_sector_3"])
+
+        fastest_lap_sectors = (duration_sector_1, duration_sector_2, duration_sector_3)
+
+    assert fastest_lap_sectors is not None
+
+    return fastest_lap_sectors
 
 
 def _stints_from_api(payload: OpenF1Payload) -> dict[int, list[model.Stint]]:
@@ -160,15 +176,13 @@ def _car_timing_events(
     return car_timing_events
 
 
-def _sector_split_from_quali_lap(lap: JSONDict) -> Tuple[float, float, float]:
-    duration_sector_1 = json_validation.to_float(lap["duration_sector_1"])
-    duration_sector_2 = json_validation.to_float(lap["duration_sector_2"])
-    duration_sector_3 = json_validation.to_float(lap["duration_sector_3"])
-
-    total = duration_sector_1 + duration_sector_2 + duration_sector_3
+def _sector_split_from_quali_lap(
+    lap_sectors: Tuple[float, float, float],
+) -> Tuple[float, float, float]:
+    total = lap_sectors[0] + lap_sectors[1] + lap_sectors[2]
 
     return (
-        (duration_sector_1 / total),
-        (duration_sector_2 / total),
-        (duration_sector_3 / total),
+        (lap_sectors[0] / total),
+        (lap_sectors[1] / total),
+        (lap_sectors[2] / total),
     )
