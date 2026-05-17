@@ -61,7 +61,7 @@ Sprint races are supported, use the `session_name` field to distinguish sprint s
     - [x] Increase the horizontal scale to 3 laps, scrolling with one sector ahead of the leader
     - [x] Interpolate position based on sector time
     - [x] Scale sector length to relative duration (use fastest lap sector times from quali)
-    - [ ] Reorder cars within a sector (can sort by lap/sector/progress now)
+    - [x] Reorder cars within a sector (can sort by lap/sector/progress now)
     - [ ] Show a pit indicator for cars going through the pit lane
     - [x] Ascii art cars!
       - ⊵o≗o⌳
@@ -72,7 +72,7 @@ Sprint races are supported, use the `session_name` field to distinguish sprint s
     - [ ] Pause
     - [ ] Change warp factor
     - [ ] Focus a driver and see extra details
-    - [ ] Keep app running after the race ends for user input
+    - [x] Keep app running after the race ends for user input
 - [ ] Race browser
 
 ## Bugs to fix

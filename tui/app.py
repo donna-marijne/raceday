@@ -73,21 +73,15 @@ class App:
     def _render_timing_event(self, timing_event: model.TimingEvent):
         log.debug(f"_render_timing_event: {timing_event}")
 
-        car_states = self.race_state.cars
-        car = timing_event.car
-        car_index = timing_event.car_state.position - 1
+        # get the UI state object
+        car_state = None
+        for cs in self.race_state.cars:
+            if cs.number == timing_event.car.number:
+                car_state = cs
+                break
+        assert car_state is not None
 
-        if car_states[car_index].number != car.number:
-            old_car_index = None
-            for i, cs in enumerate(car_states):
-                if cs.number == car.number:
-                    old_car_index = i
-                    break
-            assert old_car_index is not None
-            car_state = car_states.pop(old_car_index)
-            car_states.insert(car_index, car_state)
-
-        car_state = car_states[car_index]
+        # update the UI state
         completed_sector = timing_event.sector
         if completed_sector.sector == 3:
             car_state.lap = completed_sector.lap + 1
@@ -102,6 +96,7 @@ class App:
             TYRE_COLORS[timing_event.car_state.tyre_compound]
         )
 
+        self._update_car_positions()
         self.race_view.update(self.race_state)
 
     def _render_tick(self, timestamp: datetime):
@@ -111,6 +106,7 @@ class App:
         self.header.update()
 
         self._update_car_progress(timestamp)
+        self._update_car_positions()
         self.race_view.update(self.race_state)
 
     def _update_car_progress(self, timestamp: datetime):
@@ -120,3 +116,8 @@ class App:
 
             since_sector_start = timestamp - car_state.sector_start
             car_state.progress = since_sector_start / car_state.sector_duration
+
+    def _update_car_positions(self):
+        self.race_state.cars.sort(
+            key=lambda cs: (cs.lap, cs.sector, cs.progress), reverse=True
+        )
