@@ -31,6 +31,7 @@ def timing_events_from_api(
             continue
 
         stint = _active_stint(stints=stints, car_number=car.number, lap=lap_number)
+        tyre_age = lap_number - stint.lap_start + stint.tyre_age_at_start
 
         last_end = date_start
         sector_durations = _fixup_sector_durations(
@@ -45,12 +46,11 @@ def timing_events_from_api(
                 stint = _active_stint(
                     stints=stints, car_number=car.number, lap=lap_number + 1
                 )
+                tyre_age = lap_number + 1 - stint.lap_start + stint.tyre_age_at_start
 
             sector_end = last_end + timedelta(seconds=duration)
 
             sector = model.Sector(lap_number, i + 1)
-
-            tyre_age = lap_number - stint.tyre_age_at_start
 
             car_state = model.CarState(
                 number=car.number,

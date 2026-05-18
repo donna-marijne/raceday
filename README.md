@@ -50,9 +50,10 @@ Sprint races are supported, use the `session_name` field to distinguish sprint s
 - [ ] Richer data:
     - [x] Show driver name/acronym and team color code (openf1)
     - [x] Current tyre compound
-    - [ ] Current tyre age
+    - [x] Current tyre age
     - [x] The track name and metadata
     - [x] Use the start grid to show initial correct order
+    - [ ] Show arrows for position changes
     - [x] Current track time
     - [ ] Current track weather/temp
     - [ ] Marshal flag indicator

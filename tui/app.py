@@ -95,6 +95,7 @@ class App:
         car_state.tyre_color = color_pair_from_hex(
             TYRE_COLORS[timing_event.car_state.tyre_compound]
         )
+        car_state.tyre_age = timing_event.car_state.tyre_age
 
         self._update_car_positions()
         self.race_view.update(self.race_state)

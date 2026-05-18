@@ -9,6 +9,7 @@ class CarState:
     acronym: str
     color: int
     tyre_color: int
+    tyre_age: int
     lap: int
     sector: int
     progress: float

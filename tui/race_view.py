@@ -17,7 +17,7 @@ class RaceView:
         self.window = window
         self.show_laps = lap_scale
         self.sector_split = sector_split
-        self.y_axis_width = 6 + len(Car.glyph)
+        self.y_axis_width = 9 + len(Car.glyph)
         self.x_axis_height = 2
         self.cars = {}
 
@@ -103,6 +103,9 @@ class RaceView:
 
             # print the label with 1 col offset
             self.window.addstr(y_row, 1, car.acronym, car.color)
+
+            # print the tyre age
+            self.window.addstr(y_row, 5, f"{car.tyre_age:>2}", car.tyre_color)
 
             # draw the car
             car_col = col_from_progress(

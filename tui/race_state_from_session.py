@@ -22,6 +22,7 @@ def race_state_from_session(session: model.Session) -> RaceState:
             acronym=car.driver_acronym,
             color=color_pair_from_hex(car.color),
             tyre_color=color_pair_from_hex(TYRE_COLORS[grid_slot.tyre_compound]),
+            tyre_age=grid_slot.tyre_age,
             lap=1,
             sector=1,
             progress=0,
