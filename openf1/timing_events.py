@@ -78,6 +78,7 @@ def timing_events_from_api(
     prev_event_by_car: dict[int, model.TimingEvent] = {}
     for timing_event in timing_events:
         # calculate car position in this sector
+        # TODO: remove as unnecessary, cars are sorted by progress
         sector = timing_event.sector
         if sector not in positions_by_sector:
             positions_by_sector[sector] = []
