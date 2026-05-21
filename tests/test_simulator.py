@@ -114,8 +114,6 @@ class TestSimulator(unittest.TestCase):
             ),
         }
 
-        print(timing_events_by_car)
-
         session = model.Session(
             name="2026 Unit Testing Grand Prix",
             cars=cars,

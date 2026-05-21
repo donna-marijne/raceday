@@ -15,6 +15,7 @@ def _create_test_payload(laps):
         starting_grid=[],
         laps=laps,
         stints=[],
+        qualifying_laps=[],
     )
 
 
