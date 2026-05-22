@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
-import log
 import model
 
 from .car_state import CarState
@@ -17,11 +16,7 @@ class Simulator:
     def advance(self, period: timedelta):
         new_timestamp = self.state.timestamp + period
 
-        log.debug(f"Simulator.advance: {self.state.timestamp} -> {new_timestamp}")
-
         for car_state in self.state.cars:
-            log.debug(f"car_state={car_state}")
-
             if car_state.next_timing_event is None:
                 # car has retired, nothing more to do
                 continue
@@ -30,8 +25,6 @@ class Simulator:
             new_timing_events = self._find_new_timing_events_for_car(
                 car_number, after=self.state.timestamp, before=new_timestamp
             )
-
-            log.debug(f"new_timing_events={new_timing_events}")
 
             # no new timing events means the car hasn't crossed a sector during the period
             if len(new_timing_events) > 0:
@@ -57,8 +50,6 @@ class Simulator:
 
         self.state.cars.sort(key=lambda car_state: car_state.progress, reverse=True)
         self.state.timestamp = new_timestamp
-
-        # log.debug(f"advance: state={self.state}")
 
     def _init_state(self) -> State:
         car_states: list[CarState] = []
@@ -146,7 +137,3 @@ class Simulator:
         )
         since_sector_start = timestamp - car_state.previous_timing_event.timestamp
         car_state.progress.fraction = since_sector_start / sector_duration
-
-        log.debug(
-            f"_update_car_progress: timestamp={timestamp}, previous_timing_event={car_state.previous_timing_event}, next_timing_event={car_state.next_timing_event}"
-        )
