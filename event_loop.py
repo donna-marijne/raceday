@@ -1,37 +1,41 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import sleep
+from typing import Callable
 
-import model
+import log
+import simulator
 
 
 def event_loop(
-    session: model.Session,
-    input_callback,
-    event_callback,
-    time_callback,
+    sim: simulator.Simulator,
+    input_callback: Callable[[], None],
+    frame_callback: Callable[[simulator.State], None],
     frequency=60,
     time_warp=1,
 ):
-    interval = 1 / frequency
-    queue = list(session.timing_events)
-    start_time = session.start
-    sim_time = start_time
-    wall_time = datetime.now()
-    while len(queue) > 0:
-        # handle user input since the last frame
+    frame_period = timedelta(seconds=1 / frequency)
+    sim_period = frame_period * time_warp
+    while True:
+        target_next_frame_time = datetime.now() + frame_period
+
+        # check for user input on every frame
         input_callback()
 
-        # process the next event
-        # sleep if it is in the future (relative to sim_time)
-        event = queue.pop(0)
-        while event.timestamp > sim_time:
-            sleep(interval)
+        # simulate a frame multiplied by the warp factor
+        sim_start = datetime.now()
+        sim.advance(period=sim_period)
+        sim_duration = datetime.now() - sim_start
 
-            now = datetime.now()
-            elapsed_time = now - wall_time
-            sim_time += elapsed_time * time_warp
-            wall_time = now
-            time_callback(sim_time)
+        render_start = datetime.now()
+        frame_callback(sim.state)
+        render_duration = datetime.now() - render_start
 
-        assert event.timestamp <= sim_time
-        event_callback(sim_time, event)
+        log.debug(
+            f"event_loop: sim_duration={sim_duration} render_duration={render_duration}"
+        )
+
+        # sleep to the target
+        sleep_seconds = (target_next_frame_time - datetime.now()).total_seconds()
+        # assert sleep_seconds > 0, f"sleep_seconds={sleep_seconds}"
+        if sleep_seconds > 0:
+            sleep(sleep_seconds)

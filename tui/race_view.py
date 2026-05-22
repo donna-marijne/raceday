@@ -1,27 +1,31 @@
 import curses
-from typing import Tuple
+from typing import Optional, Tuple
 
 import log
+import simulator
+from tui.color import color_pair_from_hex
+from tyre_colors import TYRE_COLORS
 
-from .car import Car
-from .state import CarState, RaceState
+from .car_widget import CarWidget
 
 
 class RaceView:
     def __init__(
         self,
         window: curses.window,
+        state: simulator.State,
         lap_scale: int,
         sector_split: Tuple[float, float, float],
     ):
         self.window = window
+        self.state = state
         self.show_laps = lap_scale
         self.sector_split = sector_split
-        self.y_axis_width = 9 + len(Car.glyph)
+        self.y_axis_width = 9 + len(CarWidget.glyph)
         self.x_axis_height = 2
-        self.cars = {}
+        self.car_widgets: dict[int, CarWidget] = {}
 
-    def update(self, state: RaceState):
+    def update(self):
         self.window.erase()
 
         _, window_width = self.window.getmaxyx()
@@ -33,13 +37,13 @@ class RaceView:
             sector_1_cols + sector_2_cols
         )  # to avoid rounding issues
         max_leader_offset = track_width - (lap_width // 2)
-        leader = state.cars[0]
+        leader = self.state.cars[0]
         leader_col = col_from_progress(
             lap_cols=lap_width,
             sector_cols=(sector_1_cols, sector_2_cols, sector_3_cols),
-            lap=leader.lap,
-            sector=leader.sector,
-            progress=leader.progress,
+            lap=leader.progress.lap,
+            sector=leader.progress.sector,
+            progress=leader.progress.fraction,
         )
         leader_offset = min(max_leader_offset, leader_col)
         min_x_col = leader_col - leader_offset
@@ -64,13 +68,10 @@ class RaceView:
             lap_progress = x_col % lap_width
 
             lap = (x_col // lap_width) + 1
-            sector = 1
             progress = lap_progress
             if lap_progress >= sector_2_offset:
-                sector = 3
                 progress = lap_progress - sector_2_offset
             elif lap_progress >= sector_1_offset:
-                sector = 2
                 progress = lap_progress - sector_1_offset
 
             x = self.y_axis_width + x_col - min_x_col
@@ -80,7 +81,7 @@ class RaceView:
 
             if lap_progress == 0:
                 # laps start with 1, cars finish after the end
-                if lap <= state.total_laps:
+                if lap <= self.state.session.total_laps:
                     self.window.addstr(str(lap))
                 else:
                     self.window.addstr("🬗🬗🬐", curses.A_NORMAL)
@@ -92,44 +93,53 @@ class RaceView:
             else:
                 self.window.addch("━")
 
-            if lap > state.total_laps:
+            if lap > self.state.session.total_laps:
                 break
 
         self.window.attroff(curses.A_DIM)
 
         # draw the y axis and cars
-        for i, car in enumerate(state.cars):
+        for i, car_state in enumerate(self.state.cars):
             y_row = self.x_axis_height + i
 
+            car = car_state.car
+            car_color = color_pair_from_hex(car.color)
+            tyre_color = color_pair_from_hex(TYRE_COLORS[car_state.tyre_compound])
+
             # print the label with 1 col offset
-            self.window.addstr(y_row, 1, car.acronym, car.color)
+            self.window.addstr(y_row, 1, car_state.car.driver_acronym, car_color)
 
             # print the tyre age
-            self.window.addstr(y_row, 5, f"{car.tyre_age:>2}", car.tyre_color)
+            self.window.addstr(y_row, 5, f"{car_state.tyre_age:>2}", tyre_color)
 
             # draw the car
+            progress = car_state.progress
             car_col = col_from_progress(
                 lap_cols=lap_width,
                 sector_cols=(sector_1_cols, sector_2_cols, sector_3_cols),
-                lap=car.lap,
-                sector=car.sector,
-                progress=car.progress,
+                lap=progress.lap,
+                sector=progress.sector,
+                progress=progress.fraction,
             )
             car_x_offset = self.y_axis_width + max(0, car_col - min_x_col)
-            self._draw_car(car, y=y_row, x=car_x_offset)
+            self._draw_car(car_state, y=y_row, x=car_x_offset)
 
         self.window.noutrefresh()
 
-    def _draw_car(self, car_state: CarState, y: int, x: int):
-        if car_state.number not in self.cars:
-            self.cars[car_state.number] = Car(
+    def _draw_car(self, car_state: simulator.CarState, y: int, x: int):
+        car = car_state.car
+        tyre_color = color_pair_from_hex(TYRE_COLORS[car_state.tyre_compound])
+
+        if car.number not in self.car_widgets:
+            car_color = color_pair_from_hex(car.color)
+            self.car_widgets[car.number] = CarWidget(
                 window=self.window,
-                color=car_state.color,
-                tyre_color=car_state.tyre_color,
+                color=car_color,
+                tyre_color=tyre_color,
             )
 
-        self.cars[car_state.number].tyre_color = car_state.tyre_color
-        self.cars[car_state.number].draw(y=y, x=x)
+        self.car_widgets[car.number].tyre_color = tyre_color
+        self.car_widgets[car.number].draw(y=y, x=x)
 
 
 def col_from_progress(

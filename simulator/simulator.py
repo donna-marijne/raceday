@@ -1,47 +1,12 @@
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Optional
 
 import log
 import model
 
-
-@dataclass
-class Progress:
-    lap: int
-    sector: int
-    fraction: float
-
-    def __gt__(self, other):
-        if self.lap > other.lap:
-            return True
-
-        if self.lap == other.lap:
-            if self.sector > other.sector:
-                return True
-
-            if self.sector == other.sector:
-                return self.fraction > other.fraction
-
-        return False
-
-
-@dataclass()
-class CarState:
-    car: model.Car
-    previous_timing_event: Optional[model.TimingEvent]
-    next_timing_event: Optional[model.TimingEvent]
-    tyre_compound: model.TyreCompound
-    tyre_age: int
-    progress: Progress
-    in_pit_lane: bool
-
-
-@dataclass()
-class State:
-    session: model.Session
-    timestamp: datetime
-    cars: list[CarState]
+from .car_state import CarState
+from .progress import Progress
+from .state import State
 
 
 class Simulator:

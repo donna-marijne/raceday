@@ -5,6 +5,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 import model
+import simulator
 import tui
 from datetime_json_encoder import DateTimeJSONEncoder
 from event_loop import event_loop
@@ -39,22 +40,20 @@ def curses_main(stdscr: curses.window):
     session = init_session(args)
     debug_session(session)
 
-    app = tui.App(window=stdscr, session=session)
+    sim = simulator.Simulator(session=session)
+
+    app = tui.App(window=stdscr, state=sim.state)
     app.first_render()
 
     input_handler = lambda: handle_input(stdscr)
 
     event_loop(
-        session,
+        sim=sim,
         input_callback=input_handler,
-        event_callback=app.update,
-        time_callback=app.update,
+        frame_callback=app.update,
         time_warp=args.time_warp,
         frequency=args.frequency,
     )
-
-    stdscr.nodelay(False)
-    input_handler()
 
 
 def init_session(args):

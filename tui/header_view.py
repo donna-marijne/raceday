@@ -5,7 +5,7 @@ from typing import Optional
 from format_timedelta import format_timedelta
 
 
-class Header:
+class HeaderView:
     def __init__(
         self,
         window: curses.window,
