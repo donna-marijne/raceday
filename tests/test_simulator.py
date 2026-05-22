@@ -226,3 +226,213 @@ class TestSimulator(unittest.TestCase):
         )
         self.assertEqual(state.cars[1].tyre_age, 1)
         self.assertEqual(state.cars[1].tyre_compound, model.TyreCompound.INTERMEDIATE)
+
+    def test_dnf(self):
+        cars: dict[int, model.Car] = {
+            11: model.Car(
+                number=11,
+                driver_name="Sergio PEREZ",
+                driver_acronym="PER",
+                team_name="Cadillac",
+                color="909090",
+            ),
+            44: model.Car(
+                number=44,
+                driver_name="Lewis HAMILTON",
+                driver_acronym="HAM",
+                team_name="Ferrari",
+                color="ED1131",
+            ),
+        }
+
+        starting_grid: list[model.CarState] = [
+            model.CarState(
+                number=11,
+                position=-1,
+                tyre_age=0,
+                tyre_compound=model.TyreCompound.INTERMEDIATE,
+            ),
+            model.CarState(
+                number=44,
+                position=-1,
+                tyre_age=3,
+                tyre_compound=model.TyreCompound.SOFT,
+            ),
+        ]
+
+        start = datetime.fromisoformat("2026-05-21T14:16:00Z")
+
+        timing_events_by_car: dict[int, list[model.TimingEvent]] = {
+            11: _generate_timing_events_for_car(
+                car=cars[11],
+                car_state=starting_grid[0],
+                start=start,
+                durations=[28, 26, 43, 19],
+            ),
+            44: _generate_timing_events_for_car(
+                car=cars[44],
+                car_state=starting_grid[1],
+                start=start,
+                durations=[27, 24, 42, 19, 24, 41],
+            ),
+        }
+
+        session = model.Session(
+            name="2026 Unit Testing Grand Prix",
+            cars=cars,
+            sector_split=(0.2, 0.3, 0.5),
+            start=start,
+            starting_grid=starting_grid,
+            timing_events=_merge_timing_events_by_car(timing_events_by_car),
+            timing_events_by_car=timing_events_by_car,
+            total_laps=2,
+        )
+
+        simulator = Simulator(session)
+
+        state = simulator.state
+
+        self.assertEqual(state.cars[0].car.number, 11)
+        self.assertProgressEqual(
+            state.cars[0].progress, Progress(lap=1, sector=1, fraction=0.0)
+        )
+
+        self.assertEqual(state.cars[1].car.number, 44)
+        self.assertProgressEqual(
+            state.cars[1].progress, Progress(lap=1, sector=1, fraction=0.0)
+        )
+
+        # move forward to retirement point of car 11
+        simulator.advance(timedelta(seconds=116))
+
+        self.assertEqual(state.cars[0].car.number, 44)
+        self.assertProgressEqual(
+            state.cars[0].progress, Progress(lap=2, sector=2, fraction=0.167)
+        )
+
+        self.assertEqual(state.cars[1].car.number, 11)
+        self.assertProgressEqual(
+            state.cars[1].progress, Progress(lap=2, sector=1, fraction=1.0)
+        )
+
+        # move forward to the end of the race
+        simulator.advance(timedelta(seconds=62))
+
+        self.assertEqual(state.cars[0].car.number, 44)
+        self.assertProgressEqual(
+            state.cars[0].progress, Progress(lap=2, sector=3, fraction=1.0)
+        )
+
+        self.assertEqual(state.cars[1].car.number, 11)
+        self.assertProgressEqual(
+            state.cars[1].progress, Progress(lap=2, sector=1, fraction=1.0)
+        )
+
+    def test_dns(self):
+        cars: dict[int, model.Car] = {
+            11: model.Car(
+                number=11,
+                driver_name="Sergio PEREZ",
+                driver_acronym="PER",
+                team_name="Cadillac",
+                color="909090",
+            ),
+            44: model.Car(
+                number=44,
+                driver_name="Lewis HAMILTON",
+                driver_acronym="HAM",
+                team_name="Ferrari",
+                color="ED1131",
+            ),
+        }
+
+        starting_grid: list[model.CarState] = [
+            model.CarState(
+                number=11,
+                position=-1,
+                tyre_age=0,
+                tyre_compound=model.TyreCompound.INTERMEDIATE,
+            ),
+            model.CarState(
+                number=44,
+                position=-1,
+                tyre_age=3,
+                tyre_compound=model.TyreCompound.SOFT,
+            ),
+        ]
+
+        start = datetime.fromisoformat("2026-05-21T14:16:00Z")
+
+        timing_events_by_car: dict[int, list[model.TimingEvent]] = {
+            11: [],
+            44: _generate_timing_events_for_car(
+                car=cars[44],
+                car_state=starting_grid[1],
+                start=start,
+                durations=[27, 24, 42, 19, 24, 41],
+            ),
+        }
+
+        session = model.Session(
+            name="2026 Unit Testing Grand Prix",
+            cars=cars,
+            sector_split=(0.2, 0.3, 0.5),
+            start=start,
+            starting_grid=starting_grid,
+            timing_events=_merge_timing_events_by_car(timing_events_by_car),
+            timing_events_by_car=timing_events_by_car,
+            total_laps=2,
+        )
+
+        simulator = Simulator(session)
+
+        state = simulator.state
+
+        self.assertEqual(state.cars[0].car.number, 11)
+        self.assertProgressEqual(
+            state.cars[0].progress, Progress(lap=1, sector=1, fraction=0.0)
+        )
+
+        self.assertEqual(state.cars[1].car.number, 44)
+        self.assertProgressEqual(
+            state.cars[1].progress, Progress(lap=1, sector=1, fraction=0.0)
+        )
+
+        # move forward by one frame
+        simulator.advance(timedelta(seconds=1 / 30))
+
+        self.assertEqual(state.cars[0].car.number, 44)
+        self.assertProgressEqual(
+            state.cars[0].progress, Progress(lap=1, sector=1, fraction=0.001)
+        )
+
+        self.assertEqual(state.cars[1].car.number, 11)
+        self.assertProgressEqual(
+            state.cars[1].progress, Progress(lap=1, sector=1, fraction=0.0)
+        )
+
+        # move forward 30 seconds
+        simulator.advance(timedelta(seconds=30))
+
+        self.assertEqual(state.cars[0].car.number, 44)
+        self.assertProgressEqual(
+            state.cars[0].progress, Progress(lap=1, sector=2, fraction=0.126)
+        )
+
+        self.assertEqual(state.cars[1].car.number, 11)
+        self.assertProgressEqual(
+            state.cars[1].progress, Progress(lap=1, sector=1, fraction=0.0)
+        )
+
+        # move forward to the end of the race
+        simulator.advance(timedelta(seconds=148))
+
+        self.assertEqual(state.cars[0].car.number, 44)
+        self.assertProgressEqual(
+            state.cars[0].progress, Progress(lap=2, sector=3, fraction=1.0)
+        )
+
+        self.assertEqual(state.cars[1].car.number, 11)
+        self.assertProgressEqual(
+            state.cars[1].progress, Progress(lap=1, sector=1, fraction=0.0)
+        )
