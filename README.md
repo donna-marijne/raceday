@@ -78,4 +78,4 @@ Sprint races are supported, use the `session_name` field to distinguish sprint s
 
 ## Bugs to fix
 
-None so far!
+- Clock continues after the end of the race
