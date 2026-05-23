@@ -13,15 +13,6 @@ def session_from_source_dir(dir_path):
 
 
 def _session_from_api(payload: OpenF1Payload):
-    if len(payload.drivers) == 0:
-        raise ValueError(f"unexpectedly saw {len(payload.drivers)} drivers")
-
-    if len(payload.starting_grid) == 0:
-        raise ValueError(f"unexpectedly saw {len(payload.starting_grid)} starting_grid")
-
-    if len(payload.laps) == 0:
-        raise ValueError(f"unexpectedly saw {len(payload.laps)} laps")
-
     start = _session_start_from_api(payload)
     quali_lap = _quali_lap_from_api(payload)
     sector_split = _sector_split_from_quali_lap(quali_lap)
@@ -39,6 +30,7 @@ def _session_from_api(payload: OpenF1Payload):
         total_laps=total_laps,
         cars=cars,
         starting_grid=starting_grid,
+        stints=stints,
         timing_events=timing_events,
         timing_events_by_car=car_timing_events,
     )

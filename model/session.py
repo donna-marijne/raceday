@@ -4,6 +4,7 @@ from typing import Tuple
 
 from .car import Car
 from .car_state import CarState
+from .stint import Stint
 from .timing_event import TimingEvent
 
 
@@ -15,5 +16,6 @@ class Session:
     total_laps: int
     cars: dict[int, Car]
     starting_grid: list[CarState]
+    stints: dict[int, list[Stint]]
     timing_events: list[TimingEvent]
     timing_events_by_car: dict[int, list[TimingEvent]]
