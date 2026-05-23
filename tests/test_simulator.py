@@ -13,7 +13,6 @@ def _generate_timing_event(
         car=previous.car,
         car_state=copy(previous.car_state),
         sector=previous.sector.next(),
-        sector_duration=None,
         timestamp=previous.timestamp + duration,
     )
     if timing_event.sector.sector == 1:
@@ -32,7 +31,6 @@ def _generate_timing_events_for_car(
             timing_event = model.TimingEvent(
                 timestamp=start + timedelta(seconds=duration),
                 sector=model.Sector(lap=1, sector=1),
-                sector_duration=None,
                 car=car,
                 car_state=car_state,
             )
@@ -85,13 +83,11 @@ class TestSimulator(unittest.TestCase):
         starting_grid: list[model.CarState] = [
             model.CarState(
                 number=11,
-                position=-1,
                 tyre_age=0,
                 tyre_compound=model.TyreCompound.INTERMEDIATE,
             ),
             model.CarState(
                 number=44,
-                position=-1,
                 tyre_age=3,
                 tyre_compound=model.TyreCompound.SOFT,
             ),
@@ -120,6 +116,7 @@ class TestSimulator(unittest.TestCase):
             sector_split=(0.2, 0.3, 0.5),
             start=start,
             starting_grid=starting_grid,
+            stints={},  # TODO: implement when replacing car_state
             timing_events=_merge_timing_events_by_car(timing_events_by_car),
             timing_events_by_car=timing_events_by_car,
             total_laps=2,
@@ -248,13 +245,11 @@ class TestSimulator(unittest.TestCase):
         starting_grid: list[model.CarState] = [
             model.CarState(
                 number=11,
-                position=-1,
                 tyre_age=0,
                 tyre_compound=model.TyreCompound.INTERMEDIATE,
             ),
             model.CarState(
                 number=44,
-                position=-1,
                 tyre_age=3,
                 tyre_compound=model.TyreCompound.SOFT,
             ),
@@ -283,6 +278,7 @@ class TestSimulator(unittest.TestCase):
             sector_split=(0.2, 0.3, 0.5),
             start=start,
             starting_grid=starting_grid,
+            stints={},  # TODO: implement when replacing car_state
             timing_events=_merge_timing_events_by_car(timing_events_by_car),
             timing_events_by_car=timing_events_by_car,
             total_laps=2,
@@ -349,13 +345,11 @@ class TestSimulator(unittest.TestCase):
         starting_grid: list[model.CarState] = [
             model.CarState(
                 number=11,
-                position=-1,
                 tyre_age=0,
                 tyre_compound=model.TyreCompound.INTERMEDIATE,
             ),
             model.CarState(
                 number=44,
-                position=-1,
                 tyre_age=3,
                 tyre_compound=model.TyreCompound.SOFT,
             ),
@@ -379,6 +373,7 @@ class TestSimulator(unittest.TestCase):
             sector_split=(0.2, 0.3, 0.5),
             start=start,
             starting_grid=starting_grid,
+            stints={},  # TODO: implement when replacing car_state
             timing_events=_merge_timing_events_by_car(timing_events_by_car),
             timing_events_by_car=timing_events_by_car,
             total_laps=2,

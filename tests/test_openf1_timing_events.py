@@ -76,21 +76,18 @@ class TestTimingEventsFromJson(unittest.TestCase):
         )
         self.assertEqual(events[0].sector, model.Sector(1, 1))
         self.assertEqual(events[0].car.number, 11)
-        self.assertEqual(events[0].car_state.position, 1)
         self.assertEqual(
             events[1].timestamp.isoformat(),
             "2024-07-28T13:05:17.118000+00:00",
         )
         self.assertEqual(events[1].sector, model.Sector(1, 2))
         self.assertEqual(events[1].car.number, 11)
-        self.assertEqual(events[1].car_state.position, 1)
         self.assertEqual(
             events[2].timestamp.isoformat(),
             "2024-07-28T13:05:46.609000+00:00",
         )
         self.assertEqual(events[2].sector, model.Sector(1, 3))
         self.assertEqual(events[2].car.number, 11)
-        self.assertEqual(events[2].car_state.position, 1)
 
     def test_two_cars_one_lap(self):
         file_path = self.test_data_dir_path / "two_cars_one_lap.json"
@@ -109,7 +106,6 @@ class TestTimingEventsFromJson(unittest.TestCase):
         )
         self.assertEqual(events[0].sector, model.Sector(1, 1))
         self.assertEqual(events[0].car.number, 44)
-        self.assertEqual(events[0].car_state.position, 1)
         # car 11 lap 1 sector 1
         self.assertEqual(
             events[1].timestamp.isoformat(),
@@ -117,7 +113,6 @@ class TestTimingEventsFromJson(unittest.TestCase):
         )
         self.assertEqual(events[1].sector, model.Sector(1, 1))
         self.assertEqual(events[1].car.number, 11)
-        self.assertEqual(events[1].car_state.position, 2)
         # car 44 lap 1 sector 2
         self.assertEqual(
             events[2].timestamp.isoformat(),
@@ -125,7 +120,6 @@ class TestTimingEventsFromJson(unittest.TestCase):
         )
         self.assertEqual(events[2].sector, model.Sector(1, 2))
         self.assertEqual(events[2].car.number, 44)
-        self.assertEqual(events[2].car_state.position, 1)
         # car 11 lap 1 sector 2
         self.assertEqual(
             events[3].timestamp.isoformat(),
@@ -133,7 +127,6 @@ class TestTimingEventsFromJson(unittest.TestCase):
         )
         self.assertEqual(events[3].sector, model.Sector(1, 2))
         self.assertEqual(events[3].car.number, 11)
-        self.assertEqual(events[3].car_state.position, 2)
         # car 44 lap 1 sector 3
         self.assertEqual(
             events[4].timestamp.isoformat(),
@@ -141,7 +134,6 @@ class TestTimingEventsFromJson(unittest.TestCase):
         )
         self.assertEqual(events[4].sector, model.Sector(1, 3))
         self.assertEqual(events[4].car.number, 44)
-        self.assertEqual(events[4].car_state.position, 1)
         # car 11 lap 1 sector 3
         self.assertEqual(
             events[5].timestamp.isoformat(),
@@ -149,7 +141,6 @@ class TestTimingEventsFromJson(unittest.TestCase):
         )
         self.assertEqual(events[5].sector, model.Sector(1, 3))
         self.assertEqual(events[5].car.number, 11)
-        self.assertEqual(events[5].car_state.position, 2)
 
 
 if __name__ == "__main__":
