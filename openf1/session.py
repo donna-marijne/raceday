@@ -146,7 +146,6 @@ def _starting_grid_from_api(
 
         car_state = model.CarState(
             number=driver_number,
-            position=position,
             tyre_age=stint.tyre_age_at_start,
             tyre_compound=stint.tyre_compound,
         )

@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import log
 import model
 from openf1 import json_validation
-from openf1.openf1_payload import JSONDict, JSONValue, OpenF1Payload
+from openf1.openf1_payload import OpenF1Payload
 
 
 def timing_events_from_api(
@@ -54,7 +54,6 @@ def timing_events_from_api(
 
             car_state = model.CarState(
                 number=car.number,
-                position=-1,  # calculate later
                 tyre_age=tyre_age,
                 tyre_compound=stint.tyre_compound,
             )
@@ -62,7 +61,6 @@ def timing_events_from_api(
             sector = model.TimingEvent(
                 timestamp=sector_end,
                 sector=sector,
-                sector_duration=None,
                 car=car,
                 car_state=car_state,
             )
@@ -72,25 +70,6 @@ def timing_events_from_api(
             last_end = sector_end
 
     timing_events = sorted(timing_events, key=lambda t: t.timestamp)
-
-    # calculate positions and sector durations
-    positions_by_sector = {}
-    prev_event_by_car: dict[int, model.TimingEvent] = {}
-    for timing_event in timing_events:
-        # calculate car position in this sector
-        # TODO: remove as unnecessary, cars are sorted by progress
-        sector = timing_event.sector
-        if sector not in positions_by_sector:
-            positions_by_sector[sector] = []
-        positions_by_sector[sector].append(timing_event.car)
-        timing_event.car_state.position = len(positions_by_sector[sector])
-
-        # calculate sector durations
-        car_number = timing_event.car.number
-        if car_number in prev_event_by_car:
-            prev_event = prev_event_by_car[car_number]
-            prev_event.sector_duration = timing_event.timestamp - prev_event.timestamp
-        prev_event_by_car[car_number] = timing_event
 
     return timing_events
 

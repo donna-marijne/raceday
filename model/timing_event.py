@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime
 
 from .car import Car
 from .car_state import CarState
@@ -13,6 +12,5 @@ class TimingEvent:
 
     timestamp: datetime
     sector: Sector
-    sector_duration: Optional[timedelta]  # TODO: remove for simulator
     car: Car
     car_state: CarState  # TODO: remove for simulator

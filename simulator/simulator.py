@@ -61,11 +61,9 @@ class Simulator:
             previous_timing_event = model.TimingEvent(
                 timestamp=self.session.start,
                 sector=model.Sector(lap=1, sector=1),
-                sector_duration=None,
                 car=car,
                 car_state=model.CarState(
                     number=car_number,
-                    position=-1,
                     tyre_age=car_starting_state.tyre_age,
                     tyre_compound=car_starting_state.tyre_compound,
                 ),
