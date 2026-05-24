@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Tuple
 
 import model
 
@@ -12,31 +12,26 @@ class Simulator:
     def __init__(self, session: model.Session):
         self.session = session
         self.state = self._init_state()
+        self.timing_event_index_by_car: dict[int, int] = {}
+        for car in self.session.starting_grid:
+            self.timing_event_index_by_car[car.number] = 0
 
     def advance(self, period: timedelta):
         new_timestamp = self.state.timestamp + period
 
         for car_state in self.state.cars:
+            assert car_state.previous_timing_event is not None
             if car_state.next_timing_event is None:
                 # car has retired, nothing more to do
                 continue
 
             car_number = car_state.car.number
-            new_timing_events = self._find_new_timing_events_for_car(
-                car_number, after=self.state.timestamp, before=new_timestamp
+            previous_timing_event, next_timing_event = (
+                self._find_previous_and_next_timing_events(car_number, new_timestamp)
             )
-
-            # no new timing events means the car hasn't crossed a sector during the period
-            if len(new_timing_events) > 0:
-                # will this ever reasonably not be car_state.next_timing_event?
-                # yes if we want to be able to skip to specific times in the session
-                car_state.previous_timing_event = new_timing_events[-1]
-
-            assert car_state.previous_timing_event is not None
-
-            car_state.next_timing_event = self._find_next_timing_event_for_car(
-                car_number, after=new_timestamp
-            )
+            if previous_timing_event is not None:
+                car_state.previous_timing_event = previous_timing_event
+            car_state.next_timing_event = next_timing_event
 
             timing_event = (
                 car_state.next_timing_event or car_state.previous_timing_event
@@ -94,27 +89,22 @@ class Simulator:
 
         return state
 
-    def _find_new_timing_events_for_car(
-        self, car: int, after: datetime, before: datetime
-    ) -> list[model.TimingEvent]:
-        new_timing_events: list[model.TimingEvent] = []
-        for timing_event in self.session.timing_events_by_car[car]:
-            if timing_event.timestamp > before:
-                break
-            if timing_event.timestamp > after:
-                new_timing_events.append(timing_event)
+    def _find_previous_and_next_timing_events(
+        self, car: int, timestamp: datetime
+    ) -> Tuple[Optional[model.TimingEvent], Optional[model.TimingEvent]]:
+        from_index = self.timing_event_index_by_car[car]
+        timing_events = self.session.timing_events_by_car[car][from_index:]
 
-        return new_timing_events
+        previous_timing_event = None
+        for i, timing_event in enumerate(timing_events):
+            if timing_event.timestamp > timestamp:
+                self.timing_event_index_by_car[car] += i
+                return (previous_timing_event, timing_event)
 
-    def _find_next_timing_event_for_car(
-        self, car: int, after: datetime
-    ) -> Optional[model.TimingEvent]:
-        for timing_event in self.session.timing_events_by_car[car]:
-            # collection should be in order so just return the first one
-            if timing_event.timestamp > after:
-                return timing_event
+            previous_timing_event = timing_event
 
-        return None
+        self.timing_event_index_by_car[car] += len(timing_events)
+        return previous_timing_event, None
 
     def _update_car_progress(self, car_state: CarState, timestamp: datetime):
         assert car_state.previous_timing_event is not None
