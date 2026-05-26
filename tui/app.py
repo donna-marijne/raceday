@@ -44,7 +44,7 @@ class App:
             lap_scale=3,
             sector_split=self.state.session.sector_split,
         )
-        self.race_view.update()
+        self.race_view.first_render()
 
         curses.doupdate()
 

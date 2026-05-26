@@ -1,5 +1,5 @@
 import curses
-from typing import Optional, Tuple
+from typing import Tuple
 
 import log
 import simulator
@@ -24,6 +24,9 @@ class RaceView:
         self.y_axis_width = 9 + len(CarWidget.glyph)
         self.x_axis_height = 2
         self.car_widgets: dict[int, CarWidget] = {}
+
+    def first_render(self):
+        self.update()
 
     def update(self):
         self.window.erase()
