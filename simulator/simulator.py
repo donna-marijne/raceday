@@ -34,15 +34,13 @@ class Simulator:
                 car_state.previous_timing_event = previous_timing_event
             car_state.next_timing_event = next_timing_event
 
-            timing_event = (
-                car_state.next_timing_event or car_state.previous_timing_event
-            )
-            car_state.tyre_compound = timing_event.car_state.tyre_compound
-            car_state.tyre_age = timing_event.car_state.tyre_age
-
-            # TODO: how to determine in_pit_lane
-
             self._update_car_progress(car_state=car_state)
+
+            stint = self._find_current_stint(car_state=car_state)
+            car_state.tyre_compound = stint.tyre_compound
+            car_state.tyre_age = stint.tyre_age_at_start + (
+                car_state.progress.lap - stint.lap_start
+            )
 
         self.state.cars.sort(key=lambda car_state: car_state.progress, reverse=True)
 
@@ -57,11 +55,6 @@ class Simulator:
                 timestamp=self.session.start,
                 sector=model.Sector(lap=1, sector=1),
                 car=car,
-                car_state=model.CarState(
-                    number=car_number,
-                    tyre_age=car_starting_state.tyre_age,
-                    tyre_compound=car_starting_state.tyre_compound,
-                ),
             )
 
             next_timing_event: Optional[model.TimingEvent] = None
@@ -107,11 +100,11 @@ class Simulator:
         self.timing_event_index_by_car[car] += len(timing_events)
         return previous_timing_event, None
 
-    def _find_current_stint(self, car: int) -> model.Stint:
-        for stint in reversed(self.session.stints[car]):
-            if stint.lap_start < self.state.cars[car].progress.lap:
+    def _find_current_stint(self, car_state: CarState) -> model.Stint:
+        for stint in reversed(self.session.stints[car_state.car.number]):
+            if stint.lap_start <= car_state.progress.lap:
                 return stint
-        assert False
+        assert False, f"no stint for car {car_state}"
 
     def _update_car_progress(self, car_state: CarState):
         assert car_state.previous_timing_event is not None

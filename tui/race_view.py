@@ -51,9 +51,9 @@ class RaceView:
         leader_offset = min(max_leader_offset, leader_col)
         min_x_col = leader_col - leader_offset
 
-        log.debug(
-            f"track_width={track_width} lap_width={lap_width} sector_cols={sector_1_cols},{sector_2_cols},{sector_3_cols} max_leader_offset={max_leader_offset} leader_col={leader_col} leader_offset={leader_offset} min_x_col={min_x_col}"
-        )
+        # log.debug(
+        #     f"track_width={track_width} lap_width={lap_width} sector_cols={sector_1_cols},{sector_2_cols},{sector_3_cols} max_leader_offset={max_leader_offset} leader_col={leader_col} leader_offset={leader_offset} min_x_col={min_x_col}"
+        # )
 
         # draw the x axis
         x_axis_labels_y = 0

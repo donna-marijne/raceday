@@ -13,4 +13,3 @@ class TimingEvent:
     timestamp: datetime
     sector: Sector
     car: Car
-    car_state: CarState  # TODO: remove for simulator

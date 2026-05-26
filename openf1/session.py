@@ -77,7 +77,7 @@ def _quali_lap_from_api(payload: OpenF1Payload) -> Tuple[float, float, float]:
 
 
 def _stints_from_api(payload: OpenF1Payload) -> dict[int, list[model.Stint]]:
-    """Returns the stints from the payload in a dict by driver number and sorted in race order"""
+    """Returns the stints from the payload in a dict by car number and sorted in race order"""
     stints_map: dict[int, list[model.Stint]] = {}
     for stint_json in payload.stints:
         stint_number = json_validation.to_int(stint_json["stint_number"])

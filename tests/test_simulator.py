@@ -1,5 +1,4 @@
 import unittest
-from copy import copy
 from datetime import datetime, timedelta
 
 import model
@@ -11,18 +10,15 @@ def _generate_timing_event(
 ) -> model.TimingEvent:
     timing_event = model.TimingEvent(
         car=previous.car,
-        car_state=copy(previous.car_state),
         sector=previous.sector.next(),
         timestamp=previous.timestamp + duration,
     )
-    if timing_event.sector.sector == 1:
-        timing_event.car_state.tyre_age += 1
 
     return timing_event
 
 
 def _generate_timing_events_for_car(
-    car: model.Car, car_state: model.CarState, start: datetime, durations: list[float]
+    car: model.Car, start: datetime, durations: list[float]
 ) -> list[model.TimingEvent]:
     previous_event = None
     timing_events = []
@@ -32,7 +28,6 @@ def _generate_timing_events_for_car(
                 timestamp=start + timedelta(seconds=duration),
                 sector=model.Sector(lap=1, sector=1),
                 car=car,
-                car_state=car_state,
             )
         else:
             timing_event = _generate_timing_event(
@@ -95,16 +90,35 @@ class TestSimulator(unittest.TestCase):
 
         start = datetime.fromisoformat("2026-05-21T14:16:00Z")
 
+        stints = {
+            11: [
+                model.Stint(
+                    number=1,
+                    car_number=11,
+                    lap_start=1,
+                    tyre_compound=model.TyreCompound.INTERMEDIATE,
+                    tyre_age_at_start=0,
+                )
+            ],
+            44: [
+                model.Stint(
+                    number=1,
+                    car_number=44,
+                    lap_start=1,
+                    tyre_compound=model.TyreCompound.SOFT,
+                    tyre_age_at_start=3,
+                )
+            ],
+        }
+
         timing_events_by_car: dict[int, list[model.TimingEvent]] = {
             11: _generate_timing_events_for_car(
                 car=cars[11],
-                car_state=starting_grid[0],
                 start=start,
                 durations=[28, 26, 43, 19, 25, 44],
             ),
             44: _generate_timing_events_for_car(
                 car=cars[44],
-                car_state=starting_grid[1],
                 start=start,
                 durations=[27, 24, 42, 19, 24, 41],
             ),
@@ -116,7 +130,7 @@ class TestSimulator(unittest.TestCase):
             sector_split=(0.2, 0.3, 0.5),
             start=start,
             starting_grid=starting_grid,
-            stints={},  # TODO: implement when replacing car_state
+            stints=stints,
             timing_events=_merge_timing_events_by_car(timing_events_by_car),
             timing_events_by_car=timing_events_by_car,
             total_laps=2,
@@ -257,16 +271,35 @@ class TestSimulator(unittest.TestCase):
 
         start = datetime.fromisoformat("2026-05-21T14:16:00Z")
 
+        stints = {
+            11: [
+                model.Stint(
+                    number=1,
+                    car_number=11,
+                    lap_start=1,
+                    tyre_compound=model.TyreCompound.INTERMEDIATE,
+                    tyre_age_at_start=0,
+                )
+            ],
+            44: [
+                model.Stint(
+                    number=1,
+                    car_number=44,
+                    lap_start=1,
+                    tyre_compound=model.TyreCompound.SOFT,
+                    tyre_age_at_start=3,
+                )
+            ],
+        }
+
         timing_events_by_car: dict[int, list[model.TimingEvent]] = {
             11: _generate_timing_events_for_car(
                 car=cars[11],
-                car_state=starting_grid[0],
                 start=start,
                 durations=[28, 26, 43, 19],
             ),
             44: _generate_timing_events_for_car(
                 car=cars[44],
-                car_state=starting_grid[1],
                 start=start,
                 durations=[27, 24, 42, 19, 24, 41],
             ),
@@ -278,7 +311,7 @@ class TestSimulator(unittest.TestCase):
             sector_split=(0.2, 0.3, 0.5),
             start=start,
             starting_grid=starting_grid,
-            stints={},  # TODO: implement when replacing car_state
+            stints=stints,
             timing_events=_merge_timing_events_by_car(timing_events_by_car),
             timing_events_by_car=timing_events_by_car,
             total_laps=2,
@@ -357,11 +390,22 @@ class TestSimulator(unittest.TestCase):
 
         start = datetime.fromisoformat("2026-05-21T14:16:00Z")
 
+        stints = {
+            44: [
+                model.Stint(
+                    number=1,
+                    car_number=44,
+                    lap_start=1,
+                    tyre_compound=model.TyreCompound.SOFT,
+                    tyre_age_at_start=3,
+                )
+            ],
+        }
+
         timing_events_by_car: dict[int, list[model.TimingEvent]] = {
             11: [],
             44: _generate_timing_events_for_car(
                 car=cars[44],
-                car_state=starting_grid[1],
                 start=start,
                 durations=[27, 24, 42, 19, 24, 41],
             ),
@@ -373,7 +417,7 @@ class TestSimulator(unittest.TestCase):
             sector_split=(0.2, 0.3, 0.5),
             start=start,
             starting_grid=starting_grid,
-            stints={},  # TODO: implement when replacing car_state
+            stints=stints,
             timing_events=_merge_timing_events_by_car(timing_events_by_car),
             timing_events_by_car=timing_events_by_car,
             total_laps=2,

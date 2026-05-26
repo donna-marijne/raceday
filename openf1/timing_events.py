@@ -62,7 +62,6 @@ def timing_events_from_api(
                 timestamp=sector_end,
                 sector=sector,
                 car=car,
-                car_state=car_state,
             )
 
             timing_events.append(sector)
