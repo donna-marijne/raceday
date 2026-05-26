@@ -391,6 +391,15 @@ class TestSimulator(unittest.TestCase):
         start = datetime.fromisoformat("2026-05-21T14:16:00Z")
 
         stints = {
+            11: [
+                model.Stint(
+                    number=1,
+                    car_number=11,
+                    lap_start=1,
+                    tyre_compound=model.TyreCompound.INTERMEDIATE,
+                    tyre_age_at_start=0,
+                )
+            ],
             44: [
                 model.Stint(
                     number=1,

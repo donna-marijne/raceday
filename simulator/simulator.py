@@ -49,6 +49,7 @@ class Simulator:
         for car_starting_state in self.session.starting_grid:
             car_number = car_starting_state.number
             car = self.session.cars[car_number]
+            stint = self.session.stints[car_number][0]
 
             # fake timing event for race start
             previous_timing_event = model.TimingEvent(
@@ -67,8 +68,8 @@ class Simulator:
                 car=car,
                 previous_timing_event=previous_timing_event,
                 next_timing_event=next_timing_event,
-                tyre_compound=car_starting_state.tyre_compound,
-                tyre_age=car_starting_state.tyre_age,
+                tyre_compound=stint.tyre_compound,
+                tyre_age=stint.tyre_age_at_start,
                 progress=Progress(lap=1, sector=1, fraction=0.0),
                 in_pit_lane=False,
             )
