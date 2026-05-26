@@ -1,5 +1,4 @@
 from .car import Car
-from .car_state import CarState
 from .sector import Sector
 from .session import Session
 from .stint import Stint
@@ -8,7 +7,6 @@ from .tyre_compound import TyreCompound
 
 __all__ = [
     "Car",
-    "CarState",
     "Session",
     "Sector",
     "Stint",

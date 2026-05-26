@@ -9,7 +9,6 @@ from openf1.openf1_payload import OpenF1Payload
 def timing_events_from_api(
     payload: OpenF1Payload,
     cars: dict[int, model.Car],
-    stints: dict[int, list[model.Stint]],
 ):
     """Returns a list of TimingEvents ordered by timestamp"""
 
@@ -30,9 +29,6 @@ def timing_events_from_api(
             log.debug(f"date_start is None: {lap}")
             continue
 
-        stint = _active_stint(stints=stints, car_number=car.number, lap=lap_number)
-        tyre_age = lap_number - stint.lap_start + stint.tyre_age_at_start
-
         last_end = date_start
         sector_durations = _fixup_sector_durations(
             lap_duration, duration_sector_1, duration_sector_2, duration_sector_3
@@ -42,21 +38,9 @@ def timing_events_from_api(
                 log.debug(f"duration_sector_{i} is None: {lap}")
                 continue
 
-            if i == 2:
-                stint = _active_stint(
-                    stints=stints, car_number=car.number, lap=lap_number + 1
-                )
-                tyre_age = lap_number + 1 - stint.lap_start + stint.tyre_age_at_start
-
             sector_end = last_end + timedelta(seconds=duration)
 
             sector = model.Sector(lap_number, i + 1)
-
-            car_state = model.CarState(
-                number=car.number,
-                tyre_age=tyre_age,
-                tyre_compound=stint.tyre_compound,
-            )
 
             sector = model.TimingEvent(
                 timestamp=sector_end,
@@ -100,27 +84,3 @@ def _fixup_sector_durations(
         durations[missing_sector] = lap_duration - durations_total
 
     return durations
-
-
-def _active_stint(
-    stints: dict[int, list[model.Stint]], car_number: int, lap: int
-) -> model.Stint:
-    assert car_number in stints
-    for fallback_stint in reversed(stints[car_number]):
-        if fallback_stint.lap_start <= lap:
-            log.debug(
-                f"found active stint {fallback_stint} in {stints[car_number]} for car {car_number}"
-            )
-            return fallback_stint
-
-    if len(stints[car_number]) > 0:
-        # e.g. session_key=11240, driver_number=63
-        fallback_stint = stints[car_number][0]
-        log.debug(
-            f"no stint for car {car_number} on lap {lap} in {stints[car_number]}; falling back to {fallback_stint}"
-        )
-        return fallback_stint
-
-    raise Exception(
-        f"no stint found for car {car_number} on lap {lap} in {stints[car_number]} and no fallback available"
-    )

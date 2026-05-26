@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from .car import Car
-from .car_state import CarState
 from .sector import Sector
 
 

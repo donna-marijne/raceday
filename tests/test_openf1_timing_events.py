@@ -66,9 +66,7 @@ class TestTimingEventsFromJson(unittest.TestCase):
             json_str = file.read()
             laps = json.loads(json_str)
 
-        events = timing_events_from_api(
-            _create_test_payload(laps), cars=self.cars, stints=self.stints
-        )
+        events = timing_events_from_api(_create_test_payload(laps), cars=self.cars)
         self.assertEqual(len(events), 3)
         self.assertEqual(
             events[0].timestamp.isoformat(),
@@ -95,9 +93,7 @@ class TestTimingEventsFromJson(unittest.TestCase):
         with file_path.open("r") as file:
             json_str = file.read()
             laps = json.loads(json_str)
-        events = timing_events_from_api(
-            _create_test_payload(laps), cars=self.cars, stints=self.stints
-        )
+        events = timing_events_from_api(_create_test_payload(laps), cars=self.cars)
         self.assertEqual(len(events), 6)
         # car 44 lap 1 sector 1
         self.assertEqual(

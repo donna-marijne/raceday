@@ -13,8 +13,8 @@ class Simulator:
         self.session = session
         self.state = self._init_state()
         self.timing_event_index_by_car: dict[int, int] = {}
-        for car in self.session.starting_grid:
-            self.timing_event_index_by_car[car.number] = 0
+        for car_number in self.session.starting_grid:
+            self.timing_event_index_by_car[car_number] = 0
 
     def advance(self, period: timedelta):
         self.state.previous_timestamp = self.state.timestamp
@@ -46,8 +46,7 @@ class Simulator:
 
     def _init_state(self) -> State:
         car_states: list[CarState] = []
-        for car_starting_state in self.session.starting_grid:
-            car_number = car_starting_state.number
+        for car_number in self.session.starting_grid:
             car = self.session.cars[car_number]
             stint = self.session.stints[car_number][0]
 

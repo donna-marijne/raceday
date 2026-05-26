@@ -75,18 +75,7 @@ class TestSimulator(unittest.TestCase):
             ),
         }
 
-        starting_grid: list[model.CarState] = [
-            model.CarState(
-                number=11,
-                tyre_age=0,
-                tyre_compound=model.TyreCompound.INTERMEDIATE,
-            ),
-            model.CarState(
-                number=44,
-                tyre_age=3,
-                tyre_compound=model.TyreCompound.SOFT,
-            ),
-        ]
+        starting_grid = [11, 44]
 
         start = datetime.fromisoformat("2026-05-21T14:16:00Z")
 
@@ -256,18 +245,7 @@ class TestSimulator(unittest.TestCase):
             ),
         }
 
-        starting_grid: list[model.CarState] = [
-            model.CarState(
-                number=11,
-                tyre_age=0,
-                tyre_compound=model.TyreCompound.INTERMEDIATE,
-            ),
-            model.CarState(
-                number=44,
-                tyre_age=3,
-                tyre_compound=model.TyreCompound.SOFT,
-            ),
-        ]
+        starting_grid = [11, 44]
 
         start = datetime.fromisoformat("2026-05-21T14:16:00Z")
 
@@ -375,18 +353,7 @@ class TestSimulator(unittest.TestCase):
             ),
         }
 
-        starting_grid: list[model.CarState] = [
-            model.CarState(
-                number=11,
-                tyre_age=0,
-                tyre_compound=model.TyreCompound.INTERMEDIATE,
-            ),
-            model.CarState(
-                number=44,
-                tyre_age=3,
-                tyre_compound=model.TyreCompound.SOFT,
-            ),
-        ]
+        starting_grid = [11, 44]
 
         start = datetime.fromisoformat("2026-05-21T14:16:00Z")
 
@@ -496,13 +463,7 @@ class TestSimulator(unittest.TestCase):
             ),
         }
 
-        starting_grid: list[model.CarState] = [
-            model.CarState(
-                number=44,
-                tyre_age=3,
-                tyre_compound=model.TyreCompound.SOFT,
-            ),
-        ]
+        starting_grid = [44]
 
         start = datetime.fromisoformat("2026-05-21T14:16:00Z")
 

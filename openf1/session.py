@@ -19,7 +19,7 @@ def _session_from_api(payload: OpenF1Payload):
     cars = _cars_from_api(payload.drivers)
     stints = _stints_from_api(payload)
     starting_grid = _starting_grid_from_api(payload, stints)
-    timing_events = timing_events_from_api(payload, cars=cars, stints=stints)
+    timing_events = timing_events_from_api(payload, cars=cars)
     total_laps = _total_laps(timing_events)
     car_timing_events = _car_timing_events(timing_events)
 
@@ -121,7 +121,7 @@ def _cars_from_api(drivers):
 
 def _starting_grid_from_api(
     payload: OpenF1Payload, stints: dict[int, list[model.Stint]]
-) -> list[model.CarState]:
+) -> list[int]:
     grid = []
     for grid_slot in payload.starting_grid:
         position = json_validation.to_int(grid_slot["position"])
@@ -134,15 +134,7 @@ def _starting_grid_from_api(
         if driver_number not in stints:
             raise Exception(f"car {driver_number} in starting_grid but not in stints")
 
-        stint = stints[driver_number][0]
-
-        car_state = model.CarState(
-            number=driver_number,
-            tyre_age=stint.tyre_age_at_start,
-            tyre_compound=stint.tyre_compound,
-        )
-
-        grid[position - 1] = car_state
+        grid[position - 1] = driver_number
 
     return grid
 

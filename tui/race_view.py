@@ -1,7 +1,6 @@
 import curses
 from typing import Tuple
 
-import log
 import simulator
 from tui.color import color_pair_from_hex
 from tyre_colors import TYRE_COLORS
