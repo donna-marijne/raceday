@@ -78,4 +78,5 @@ Sprint races are supported, use the `session_name` field to distinguish sprint s
 
 ## Bugs to fix
 
-- Clock continues after the end of the race
+- `stints` information is inconsistent with `pit`
+    - use stint number only and use `pit` data to determine the lap number of the next stint
