@@ -55,6 +55,11 @@ def curses_main(stdscr: curses.window):
         frequency=args.frequency,
     )
 
+    # set blocking input mode
+    stdscr.nodelay(False)
+
+    input_handler()
+
 
 def init_session(args):
     source_dir = Path(args.source_dir)

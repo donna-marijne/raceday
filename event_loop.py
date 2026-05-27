@@ -14,7 +14,7 @@ def event_loop(
 ):
     frame_period = timedelta(seconds=1 / frequency)
     sim_period = frame_period * time_warp
-    while True:
+    while not sim.is_complete():
         target_next_frame_time = datetime.now() + frame_period
 
         # check for user input on every frame

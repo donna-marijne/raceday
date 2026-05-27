@@ -16,6 +16,9 @@ class Simulator:
         for car_number in self.session.starting_grid:
             self.timing_event_index_by_car[car_number] = 0
 
+    def is_complete(self) -> bool:
+        return self.state.timestamp > self.session.timing_events[-1].timestamp
+
     def advance(self, period: timedelta):
         self.state.previous_timestamp = self.state.timestamp
         self.state.timestamp += period
