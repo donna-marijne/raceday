@@ -45,6 +45,10 @@ class Simulator:
                 car_state.progress.lap - stint.lap_start
             )
 
+            pit_event = self._find_previous_pit_event(car_state=car_state)
+            if pit_event is not None:
+                car_state.in_pit_lane = pit_event.in_lane
+
         self.state.cars.sort(key=lambda car_state: car_state.progress, reverse=True)
 
     def _init_state(self) -> State:
@@ -108,6 +112,14 @@ class Simulator:
             if stint.lap_start <= car_state.progress.lap:
                 return stint
         assert False, f"no stint for car {car_state}"
+
+    def _find_previous_pit_event(self, car_state: CarState) -> Optional[model.PitEvent]:
+        pit_events = self.session.pit_events_by_car[car_state.car.number]
+        for pit_event in reversed(pit_events):
+            if pit_event.timestamp < self.state.timestamp:
+                return pit_event
+
+        return None
 
     def _update_car_progress(self, car_state: CarState):
         assert car_state.previous_timing_event is not None

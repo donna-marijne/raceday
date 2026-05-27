@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Tuple
 
 import model
@@ -19,6 +19,7 @@ def _session_from_api(payload: OpenF1Payload):
     cars = _cars_from_api(payload.drivers)
     stints = _stints_from_api(payload)
     starting_grid = _starting_grid_from_api(payload, stints)
+    pit_events_by_car = _pit_events_from_api(payload, cars=cars)
     timing_events = timing_events_from_api(payload, cars=cars)
     total_laps = _total_laps(timing_events)
     car_timing_events = _car_timing_events(timing_events)
@@ -31,6 +32,7 @@ def _session_from_api(payload: OpenF1Payload):
         cars=cars,
         starting_grid=starting_grid,
         stints=stints,
+        pit_events_by_car=pit_events_by_car,
         timing_events=timing_events,
         timing_events_by_car=car_timing_events,
     )
@@ -117,6 +119,38 @@ def _cars_from_api(drivers):
         )
 
     return cars
+
+
+def _pit_events_from_api(
+    payload: OpenF1Payload, cars: dict[int, model.Car]
+) -> dict[int, list[model.PitEvent]]:
+    pit_events_by_car: dict[int, list[model.PitEvent]] = {}
+    for car_number in cars:
+        pit_events_by_car[car_number] = []
+
+    for pit in payload.pit:
+        date = json_validation.to_datetime(pit["date"])
+        lane_duration = json_validation.to_float(pit["lane_duration"])
+        driver_number = json_validation.to_int(pit["driver_number"])
+
+        pit_event_in = model.PitEvent(
+            car=cars[driver_number],
+            in_lane=True,
+            timestamp=date,
+        )
+
+        pit_event_out = model.PitEvent(
+            car=cars[driver_number],
+            in_lane=False,
+            timestamp=date + timedelta(seconds=lane_duration),
+        )
+
+        pit_events_by_car[driver_number].extend([pit_event_in, pit_event_out])
+
+    for pit_events in pit_events_by_car.values():
+        pit_events.sort(key=lambda pit_event: pit_event.timestamp)
+
+    return pit_events_by_car
 
 
 def _starting_grid_from_api(

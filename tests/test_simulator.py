@@ -100,6 +100,8 @@ class TestSimulator(unittest.TestCase):
             ],
         }
 
+        pit_events_by_car = {11: [], 44: []}
+
         timing_events_by_car: dict[int, list[model.TimingEvent]] = {
             11: _generate_timing_events_for_car(
                 car=cars[11],
@@ -116,6 +118,7 @@ class TestSimulator(unittest.TestCase):
         session = model.Session(
             name="2026 Unit Testing Grand Prix",
             cars=cars,
+            pit_events_by_car=pit_events_by_car,
             sector_split=(0.2, 0.3, 0.5),
             start=start,
             starting_grid=starting_grid,
@@ -270,6 +273,8 @@ class TestSimulator(unittest.TestCase):
             ],
         }
 
+        pit_events_by_car = {11: [], 44: []}
+
         timing_events_by_car: dict[int, list[model.TimingEvent]] = {
             11: _generate_timing_events_for_car(
                 car=cars[11],
@@ -286,6 +291,7 @@ class TestSimulator(unittest.TestCase):
         session = model.Session(
             name="2026 Unit Testing Grand Prix",
             cars=cars,
+            pit_events_by_car=pit_events_by_car,
             sector_split=(0.2, 0.3, 0.5),
             start=start,
             starting_grid=starting_grid,
@@ -378,6 +384,8 @@ class TestSimulator(unittest.TestCase):
             ],
         }
 
+        pit_events_by_car = {11: [], 44: []}
+
         timing_events_by_car: dict[int, list[model.TimingEvent]] = {
             11: [],
             44: _generate_timing_events_for_car(
@@ -390,6 +398,7 @@ class TestSimulator(unittest.TestCase):
         session = model.Session(
             name="2026 Unit Testing Grand Prix",
             cars=cars,
+            pit_events_by_car=pit_events_by_car,
             sector_split=(0.2, 0.3, 0.5),
             start=start,
             starting_grid=starting_grid,
@@ -486,6 +495,9 @@ class TestSimulator(unittest.TestCase):
             ],
         }
 
+        # TODO: add a pit event for the tyre change
+        pit_events_by_car = {44: []}
+
         timing_events_by_car: dict[int, list[model.TimingEvent]] = {
             44: _generate_timing_events_for_car(
                 car=cars[44],
@@ -497,6 +509,7 @@ class TestSimulator(unittest.TestCase):
         session = model.Session(
             name="2026 Unit Testing Grand Prix",
             cars=cars,
+            pit_events_by_car=pit_events_by_car,
             sector_split=(0.2, 0.3, 0.5),
             start=start,
             starting_grid=starting_grid,

@@ -140,8 +140,10 @@ class RaceView:
                 tyre_color=tyre_color,
             )
 
-        self.car_widgets[car.number].tyre_color = tyre_color
-        self.car_widgets[car.number].draw(y=y, x=x)
+        car_widget = self.car_widgets[car.number]
+        car_widget.tyre_color = tyre_color
+        car_widget.in_pit_lane = car_state.in_pit_lane
+        car_widget.draw(y=y, x=x)
 
 
 def col_from_progress(

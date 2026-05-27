@@ -15,6 +15,7 @@ class OpenF1Payload:
     laps: list[JSONDict]
     qualifying_laps: list[JSONDict]
     stints: list[JSONDict]
+    pit: list[JSONDict]
 
     @classmethod
     def from_source_dir(cls, dir_path):
@@ -59,6 +60,11 @@ class OpenF1Payload:
             json_str = stints_file.read()
             stints = json.loads(json_str)
 
+        pit = None
+        with (dir_path / "pit.json").open("r") as pit_file:
+            json_str = pit_file.read()
+            pit = json.loads(json_str)
+
         return cls(
             session=session,
             meeting=meeting,
@@ -67,4 +73,5 @@ class OpenF1Payload:
             laps=laps,
             qualifying_laps=qualifying_laps,
             stints=stints,
+            pit=pit,
         )

@@ -5,7 +5,7 @@ quali_session_key=$2
 race_session_key=$3
 payloads_dir="./tests/data/payloads"
 base_url="https://api.openf1.org/v1"
-request_throttle=0.5s
+request_throttle=2s
 
 session_dir="$payloads_dir/$race_session_key"
 
@@ -30,6 +30,7 @@ fetch_json "drivers" "session_key" $race_session_key
 fetch_json "laps" "session_key" $race_session_key
 fetch_json "laps" "session_key" $quali_session_key "qualifying_laps"
 fetch_json "meetings" "meeting_key" $meeting_key
+fetch_json "pit" "session_key" $race_session_key
 fetch_json "sessions" "session_key" $race_session_key
 fetch_json "starting_grid" "session_key" $quali_session_key
 fetch_json "stints" "session_key" $race_session_key
