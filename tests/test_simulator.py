@@ -496,7 +496,22 @@ class TestSimulator(unittest.TestCase):
         }
 
         # TODO: add a pit event for the tyre change
-        pit_events_by_car = {44: []}
+        pit_events_by_car = {
+            44: [
+                model.PitEvent(
+                    timestamp=start + timedelta(seconds=63),
+                    car_number=44,
+                    lap=1,
+                    in_lane=True,
+                ),
+                model.PitEvent(
+                    timestamp=start + timedelta(seconds=82),
+                    car_number=44,
+                    lap=1,
+                    in_lane=False,
+                ),
+            ]
+        }
 
         timing_events_by_car: dict[int, list[model.TimingEvent]] = {
             44: _generate_timing_events_for_car(

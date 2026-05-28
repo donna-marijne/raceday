@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Tuple
 
+import log
 import model
 from model.tyre_compound import TyreCompound
 from openf1 import json_validation
@@ -17,9 +18,9 @@ def _session_from_api(payload: OpenF1Payload):
     quali_lap = _quali_lap_from_api(payload)
     sector_split = _sector_split_from_quali_lap(quali_lap)
     cars = _cars_from_api(payload.drivers)
-    stints = _stints_from_api(payload)
-    starting_grid = _starting_grid_from_api(payload, stints)
     pit_events_by_car = _pit_events_from_api(payload, cars=cars)
+    stints = _stints_from_api(payload, pit_events_by_car=pit_events_by_car)
+    starting_grid = _starting_grid_from_api(payload, stints)
     timing_events = timing_events_from_api(payload, cars=cars)
     total_laps = _total_laps(timing_events)
     car_timing_events = _car_timing_events(timing_events)
@@ -78,7 +79,9 @@ def _quali_lap_from_api(payload: OpenF1Payload) -> Tuple[float, float, float]:
     return fastest_lap_sectors
 
 
-def _stints_from_api(payload: OpenF1Payload) -> dict[int, list[model.Stint]]:
+def _stints_from_api(
+    payload: OpenF1Payload, pit_events_by_car: dict[int, list[model.PitEvent]]
+) -> dict[int, list[model.Stint]]:
     """Returns the stints from the payload in a dict by car number and sorted in race order"""
     stints_map: dict[int, list[model.Stint]] = {}
     for stint_json in payload.stints:
@@ -102,7 +105,25 @@ def _stints_from_api(payload: OpenF1Payload) -> dict[int, list[model.Stint]]:
         stints_map[driver_number].append(stint)
 
     for car_number in stints_map:
-        stints_map[car_number] = sorted(stints_map[car_number], key=lambda s: s.number)
+        stints = stints_map[car_number]
+        stints.sort(key=lambda s: s.number)
+
+        # fixup stint lap numbers
+        pit_events = pit_events_by_car[car_number]
+        for stint in stints[1:]:
+            pit_event_index = (stint.number - 2) * 2
+            if pit_event_index >= len(pit_events):
+                log.debug(
+                    f"index {pit_event_index} not in {pit_events}; stints={stints}"
+                )
+                break
+
+            pit_enter_event = pit_events[pit_event_index]
+            stint.lap_start = pit_enter_event.lap + 1
+
+        log.debug(
+            f"car {car_number} stints={stints_map[car_number]} pit_events={pit_events}"
+        )
 
     return stints_map
 
@@ -131,17 +152,20 @@ def _pit_events_from_api(
     for pit in payload.pit:
         date = json_validation.to_datetime(pit["date"])
         lane_duration = json_validation.to_float(pit["lane_duration"])
+        lap_number = json_validation.to_int(pit["lap_number"])
         driver_number = json_validation.to_int(pit["driver_number"])
 
         pit_event_in = model.PitEvent(
-            car=cars[driver_number],
+            car_number=driver_number,
             in_lane=True,
+            lap=lap_number,
             timestamp=date,
         )
 
         pit_event_out = model.PitEvent(
-            car=cars[driver_number],
+            car_number=driver_number,
             in_lane=False,
+            lap=lap_number,
             timestamp=date + timedelta(seconds=lane_duration),
         )
 
